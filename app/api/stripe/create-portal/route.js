@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/libs/next-auth";
-import connectMongo from "@/libs/mongoose";
-import { createCustomerPortal } from "@/libs/stripe";
+import connectMongo from "@/libs/db/mongoose";
+import { createCustomerPortal } from "@/libs/api/stripe";
 import User from "@/models/User";
 
 export async function POST(req) {

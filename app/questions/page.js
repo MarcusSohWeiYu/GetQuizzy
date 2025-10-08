@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { GeistSans, GeistMono } from 'geist/font';
 import { useState } from "react";
+import { generatePromptFromAnswers, generatePersonalityDescription } from '../../libs/api/gpt';
 
 // Replace the font initialization with direct usage of GeistSans and GeistMono
 const geistSans = GeistSans;
@@ -85,32 +86,17 @@ const questions = [
   }
 ];
 
-// Add this function after the questions array
-const generatePromptFromAnswers = (answers) => {
-  const answersList = Object.entries(answers)
-    .map(([index, answer]) => `${questions[index].question}: ${answer}`)
-    .join('. ');
-
-  return `Create a fun, friendly avatar based on these personality traits: ${answersList}. Make it colorful, modern, and suitable for a profile picture. Style: digital art, friendly and approachable.`;
-};
-
 export default function Home() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedAvatar, setGeneratedAvatar] = useState(""); // Add this line
-
-  // Hardcoded personality types - you can modify these
-  const personalityTypes = {
-    type1: {
-      title: "The Creative Explorer",
-      image: "/images/avatar1.png", // Add your avatar image to public/images folder
-      description: "You're a vibrant soul who thrives on new experiences! Your quick wit and adaptability make you the friend everyone turns to for fresh perspectives. While you might occasionally get lost in your own thoughts (especially during those Netflix marathons), your creative energy is contagious. You're basically a walking generator of fun ideas, with a dash of chaos and a sprinkle of genius!",
-      traits: ["Imaginative", "Adventurous", "Spontaneous", "Friendly"],
-      emoji: "✨🎨🌟"
-    }
-  };
+  const [generatedAvatar, setGeneratedAvatar] = useState("");
+  const [personalityData, setPersonalityData] = useState({
+    description: "",
+    emoji: "✨🎨🌟",
+    traits: [] // Add empty traits array in initial state
+  });
 
   const handleAnswer = async (answer) => {
     const newAnswers = { ...answers, [currentQuestion]: answer };
@@ -123,9 +109,15 @@ export default function Home() {
       setShowResults(true);
       
       try {
-        const prompt = generatePromptFromAnswers(newAnswers);
-        
-        const response = await fetch('/api/openaiImage', {
+        // Generate personality description
+        const personalityResult = await generatePersonalityDescription(newAnswers, questions, 'user-1');
+        if (personalityResult) {
+          setPersonalityData(personalityResult);
+        }
+
+        // Generate avatar image
+        const prompt = generatePromptFromAnswers(newAnswers, questions);
+        const response = await fetch('/api/openai/dalle', {  // Updated path
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -133,14 +125,23 @@ export default function Home() {
           body: JSON.stringify({ prompt }),
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        
-        // Store the generated image URL
         if (data.data && data.data[0]?.url) {
           setGeneratedAvatar(data.data[0].url);
+        } else {
+          console.error('Invalid response format:', data);
         }
       } catch (error) {
-        console.error('Failed to generate avatar:', error);
+        console.error('Failed to generate results:', error);
+        // Optionally show error to user
+        setPersonalityData(prev => ({
+          ...prev,
+          description: "Sorry, we encountered an error generating your results. Please try again."
+        }));
       } finally {
         setIsLoading(false);
       }
@@ -205,38 +206,45 @@ export default function Home() {
             ) : (
               <>
                 <h2 className="text-3xl font-bold mb-6">
-                  {personalityTypes.type1.title} {personalityTypes.type1.emoji}
+                  {personalityData.title} {personalityData.emoji}
                 </h2>
 
                 {/* Avatar Image */}
-                <div className="w-48 h-48 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-purple-300">
-                  <Image
-                    src={generatedAvatar || personalityTypes.type1.image}
-                    alt="Personality Avatar"
-                    width={192}
-                    height={192}
-                    className="object-cover"
-                  />
+                <div className="max-w-md mx-auto mb-8">
+                  {generatedAvatar && (
+                    <div className="aspect-square relative rounded-2xl overflow-hidden shadow-xl border-4 border-purple-300 transition-transform hover:scale-[1.02]">
+                      <Image
+                        src={generatedAvatar}
+                        alt="Personality Avatar"
+                        width={512}
+                        height={512}
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
                 <div className="bg-purple-50 dark:bg-purple-900 p-6 rounded-xl">
                   <p className="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
-                    {personalityTypes.type1.description}
+                    {personalityData.description}
                   </p>
                 </div>
 
                 {/* Traits */}
-                <div className="flex flex-wrap justify-center gap-2 mt-4">
-                  {personalityTypes.type1.traits.map((trait, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-purple-200 dark:bg-purple-800 rounded-full text-sm font-medium"
-                    >
-                      {trait}
-                    </span>
-                  ))}
-                </div>
+                {personalityData.traits && personalityData.traits.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-2 mt-4">
+                    {personalityData.traits.map((trait, index) => (
+                      <span
+                        key={index}
+                        className="px-4 py-2 bg-purple-200 dark:bg-purple-800 rounded-full text-sm font-medium"
+                      >
+                        {trait}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Share Section */}
                 <div className="mt-8 border-t pt-8">

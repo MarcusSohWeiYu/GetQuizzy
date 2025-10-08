@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.DALLE_OPENAI_API_KEY,
 });
 
 export async function POST(req) {
   try {
-    const { prompt } = await req.json(); // Get the prompt from request body
+    const { prompt } = await req.json();
 
     if (!prompt) {
       return NextResponse.json(
@@ -23,12 +23,18 @@ export async function POST(req) {
       n: 1,
     });
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      data: response.data,
+      created: response.created
+    });
 
   } catch (error) {
     console.error("OpenAI API error:", error);
     return NextResponse.json(
-      { error: "Failed to generate image" },
+      { 
+        error: "Failed to generate image",
+        details: error.message 
+      },
       { status: 500 }
     );
   }
