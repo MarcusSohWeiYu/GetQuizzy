@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { GeistSans, GeistMono } from 'geist/font';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generatePromptFromAnswers, generatePersonalityDescription } from '../../libs/api/gpt';
 
 // Replace the font initialization with direct usage of GeistSans and GeistMono
@@ -93,36 +93,100 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedAvatar, setGeneratedAvatar] = useState("");
   const [personalityData, setPersonalityData] = useState({
+    name: "",
     description: "",
-    emoji: "✨🎨🌟",
-    traits: [] // Add empty traits array in initial state
+    traits: []
   });
+  const [validationMessage, setValidationMessage] = useState(""); // Added validation message state
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [personalityLoaded, setPersonalityLoaded] = useState(false);
+
+  // Add this array of fun loading messages
+  const loadingMessages = [
+    "🔮 Analyzing your quirky choices...",
+    "🧩 Piecing together your personality puzzle...",
+    "🎲 Rolling the dice of destiny...",
+    "🎨 Painting your personality portrait...",
+    "Fun fact: 75% of people change their personality test answers based on their mood!",
+    "🤔 Did you know? Your personality type can influence your coffee order!",
+    "🎮 Gaming fact: Your personality affects your gaming style!",
+    "🌟 Fun fact: Your personality type might predict your favorite memes!",
+    "🎵 Processing your vibes... Please hold for awesomeness!",
+    "🔍 Searching for your spirit animal in our database..."
+  ];
+
+  useEffect(() => {
+    let messageInterval;
+    if (isLoading || (!imageLoaded && generatedAvatar) || !personalityLoaded) {
+      let index = 0;
+      setLoadingMessage(loadingMessages[0]);
+      messageInterval = setInterval(() => {
+        index = (index + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[index]);
+      }, 5000); // Change message every 3 seconds
+    }
+    return () => clearInterval(messageInterval);
+  }, [isLoading, imageLoaded, personalityLoaded, generatedAvatar]);
+
+  useEffect(() => {
+    console.log('Loading states:', {
+      isLoading,
+      imageLoaded,
+      personalityLoaded,
+      hasAvatar: !!generatedAvatar
+    });
+  }, [isLoading, imageLoaded, personalityLoaded, generatedAvatar]);
 
   const handleAnswer = async (answer) => {
     const newAnswers = { ...answers, [currentQuestion]: answer };
     setAnswers(newAnswers);
+    setValidationMessage(""); // Clear validation message when an answer is selected
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
-    } else {
+    }
+    // Remove the else block that was triggering results
+  };
+
+  const handleBack = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+      setValidationMessage("");
+    }
+  };
+
+  const handleForward = async () => {
+    if (!answers[currentQuestion]) {
+      setValidationMessage("Hold up! Pick an answer before moving forward! 🎯");
+      return;
+    }
+    
+    if (currentQuestion === questions.length - 1) {
       setIsLoading(true);
       setShowResults(true);
+      setImageLoaded(false);
+      setPersonalityLoaded(false);
       
       try {
-        // Generate personality description
-        const personalityResult = await generatePersonalityDescription(newAnswers, questions, 'user-1');
+        // Generate personality first
+        const personalityResult = await generatePersonalityDescription(answers, questions, 'user-1');
         if (personalityResult) {
           setPersonalityData(personalityResult);
+          setPersonalityLoaded(true);
         }
 
-        // Generate avatar image
-        const prompt = generatePromptFromAnswers(newAnswers, questions);
-        const response = await fetch('/api/openai/dalle', {  // Updated path
+        // Then generate avatar
+        const prompt = generatePromptFromAnswers(answers, questions);
+        const response = await fetch('/api/openai/dalle', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ 
+            prompt,
+            size: "512x512", // Smaller size for faster generation and loading
+          }),
         });
 
         if (!response.ok) {
@@ -132,19 +196,24 @@ export default function Home() {
         const data = await response.json();
         if (data.data && data.data[0]?.url) {
           setGeneratedAvatar(data.data[0].url);
+          // Image loading will be handled by the useEffect
         } else {
-          console.error('Invalid response format:', data);
+          throw new Error('Invalid response format from DALL-E API');
         }
       } catch (error) {
         console.error('Failed to generate results:', error);
-        // Optionally show error to user
         setPersonalityData(prev => ({
           ...prev,
           description: "Sorry, we encountered an error generating your results. Please try again."
         }));
+        setPersonalityLoaded(true);
+        setImageLoaded(true);
       } finally {
         setIsLoading(false);
       }
+    } else {
+      setCurrentQuestion(currentQuestion + 1);
+      setValidationMessage("");
     }
   };
 
@@ -152,7 +221,39 @@ export default function Home() {
     setCurrentQuestion(0);
     setAnswers({});
     setShowResults(false);
+    setIsLoading(false);
+    setImageLoaded(false);
+    setPersonalityLoaded(false);
+    setGeneratedAvatar("");
+    setPersonalityData({
+      name: "",
+      description: "",
+      traits: []
+    });
   };
+
+  // Replace the useEffect for image loading with this:
+  useEffect(() => {
+    if (generatedAvatar) {
+      const preloadImage = () => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = generatedAvatar;
+        link.onload = () => {
+          console.log("Image preloaded successfully");
+          setImageLoaded(true);
+        };
+        link.onerror = () => {
+          console.log("Image failed to preload");
+          setImageLoaded(true); // Prevent infinite loading on error
+        };
+        document.head.appendChild(link);
+      };
+
+      preloadImage();
+    }
+  }, [generatedAvatar]);
 
   return (
     <div className={`${geistSans.className} ${geistMono.className} min-h-screen bg-gradient-to-b from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 p-8`}>
@@ -173,40 +274,86 @@ export default function Home() {
               <h2 className="text-xl font-semibold mb-4">
                 {questions[currentQuestion].question}
               </h2>
-              <div className="grid grid-cols-1 gap-4">
+              
+              {/* Options */}
+              <div className="grid grid-cols-1 gap-4 mb-6">
                 {questions[currentQuestion].options.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleAnswer(option)}
-                    className="p-4 text-left rounded-lg border-2 border-purple-200 hover:border-purple-500 hover:bg-purple-50 dark:border-purple-700 dark:hover:border-purple-400 dark:hover:bg-purple-900 transition-all duration-200"
+                    className={`p-4 text-left rounded-lg border-2 transition-all duration-200 ${
+                      answers[currentQuestion] === option 
+                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900' 
+                        : 'border-purple-200 hover:border-purple-500 hover:bg-purple-50 dark:border-purple-700 dark:hover:border-purple-400 dark:hover:bg-purple-900'
+                    }`}
                   >
                     {option}
                   </button>
                 ))}
               </div>
+
+              {/* Validation Message */}
+              {validationMessage && (
+                <div className="text-red-500 dark:text-red-400 mb-4 animate-bounce">
+                  {validationMessage}
+                </div>
+              )}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between items-center mt-8">
+                <button
+                  onClick={handleBack}
+                  className={`px-6 py-2 rounded-full transition-colors ${
+                    currentQuestion > 0
+                      ? 'bg-purple-500 text-white hover:bg-purple-600'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  disabled={currentQuestion === 0}
+                >
+                  ← Back
+                </button>
+                
+                <span className="text-sm text-gray-500">
+                  Question {currentQuestion + 1} of {questions.length}
+                </span>
+                
+                <button
+                  onClick={handleForward}
+                  className={`px-6 py-2 rounded-full transition-colors ${
+                    currentQuestion === questions.length - 1
+                      ? 'bg-green-500 hover:bg-green-600'
+                      : 'bg-purple-500 hover:bg-purple-600'
+                  } text-white`}
+                >
+                  {currentQuestion === questions.length - 1 ? 'See Results ✨' : 'Next →'}
+                </button>
+              </div>
             </div>
           </div>
         ) : (
           <div className="text-center space-y-8">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-                {/* Larger spinner */}
-                <div className="w-24 h-24 border-8 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+            {(isLoading || (!imageLoaded && generatedAvatar) || !personalityLoaded) && (
+              // Loading state
+              <div className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
+                {/* Animated loading container */}
+                <div className="relative w-32 h-32">
+                  <div className="absolute inset-0 border-8 border-purple-200 rounded-full"></div>
+                  <div className="absolute inset-0 border-8 border-t-purple-500 rounded-full animate-spin"></div>
+                  <div className="absolute inset-[25%] bg-purple-500 rounded-full animate-pulse"></div>
+                </div>
                 
-                {/* Loading text with animation */}
-                <div className="flex items-center space-x-2">
-                  <p className="text-xl font-medium text-purple-600 dark:text-purple-300">
-                    Analyzing your personality
+                {/* Animated loading message */}
+                <div className="max-w-md">
+                  <p className="text-xl font-medium text-purple-600 dark:text-purple-300 transition-opacity duration-500">
+                    {loadingMessage}
                   </p>
-                  <span className="animate-bounce">.</span>
-                  <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>.</span>
-                  <span className="animate-bounce" style={{ animationDelay: "0.4s" }}>.</span>
                 </div>
               </div>
-            ) : (
+            )}
+            {(!isLoading && imageLoaded && personalityLoaded) && (
               <>
                 <h2 className="text-3xl font-bold mb-6">
-                  {personalityData.title} {personalityData.emoji}
+                  {personalityData.name}
                 </h2>
 
                 {/* Avatar Image */}
@@ -220,6 +367,13 @@ export default function Home() {
                         height={512}
                         className="object-cover"
                         priority
+                        quality={75} // Slightly reduce quality for faster loading
+                        placeholder="blur"
+                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDARAVFhkeHRkgHR0dHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="  // Base64 blurred placeholder
+                        onLoad={() => {
+                          console.log("Image loaded in component");
+                          setImageLoaded(true);
+                        }}
                       />
                     </div>
                   )}

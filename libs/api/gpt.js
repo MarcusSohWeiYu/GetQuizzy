@@ -1,3 +1,7 @@
+import { z } from "zod";
+import { zodTextFormat } from "openai/helpers/zod";
+import OpenAI from "openai";
+
 // Use this if you want to make a call to OpenAI GPT-4 for instance. userId is used to identify the user on openAI side.
 export const sendOpenAi = async (messages, userId, max = 1000, temp = 1) => {
   try {
@@ -53,33 +57,48 @@ export const generatePromptFromAnswers = (answers, questions) => {
 - Environment: Simple circular platform/base with subtle shadows
 - Lighting: Soft studio lighting with gentle gradient background
 - Composition: Character centered, full-body view
+- Strict rule: It should include no words at all
 
 Character traits created based on these answers and questions: ${answersList}
-
-CRITICAL: This MUST be a clean render with NO TEXT, NO LABELS, NO ANNOTATIONS whatsoever. The image should contain ONLY the 3D character on its platform with absolutely no text elements or overlays of any kind. Any text or labels will make the image unusable.
 
 Style: High-end 3D character render similar to modern Pixar or Disney character collectible figures. Think high-quality vinyl toy photography.`;
 };
 
-export const generatePersonalityDescription = async (answers, questions, userId) => {
-  const messages = [
-    {
-      role: "system",
-      content: "You are a fun, insightful personality analyzer. Generate engaging, positive, and playful personality descriptions based on quiz answers. Keep it within 2-3 sentences."
-    },
-    {
-      role: "user",
-      content: `Based on these quiz answers, create a fun and engaging personality description that captures their essence. Make it playful and positive. Here are the answers: ${Object.entries(answers)
-        .map(([index, answer]) => `${questions[index].question}: ${answer}`)
-        .join('. ')}`
-    }
-  ];
+// Define Zod schema without Mongoose dependency
+const PersonalitySchema = z.object({
+  name: z.string(),
+  trait1: z.string(),
+  trait2: z.string(),
+  trait3: z.string(),
+  description: z.string(),
+});
 
-  const response = await sendOpenAi(messages, userId);
-  
-  return {
-    description: response || "An amazing personality that's yet to be discovered!",
-    emoji: "✨🎨🌟",
-    traits: [] // Add empty traits array as default
-  };
+export const generatePersonalityDescription = async (answers, questions, userId) => {
+  try {
+    const response = await fetch('/api/openai/personality', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        answers,
+        questions,
+        userId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate personality');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Personality Generation Error:", error);
+    return {
+      name: "Mysterious Explorer",
+      description: "An amazing personality that's yet to be discovered!",
+      traits: ["Unique", "Adventurous", "Creative"]
+    };
+  }
 };
