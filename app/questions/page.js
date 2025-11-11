@@ -2,7 +2,8 @@
 import Image from "next/image";
 import { GeistSans, GeistMono } from 'geist/font';
 import { useState, useEffect } from "react";
-import { generatePromptFromAnswers, generatePersonalityDescription } from '../../libs/api/gpt';
+import { ImageGenerationPrompt } from "@/libs/helpers/prompt";
+import { tr } from "zod/v4/locales";
 
 // Replace the font initialization with direct usage of GeistSans and GeistMono
 const geistSans = GeistSans;
@@ -10,77 +11,86 @@ const geistMono = GeistMono;
 
 const questions = [
   {
+    id: 0,
+    question: "What is your name?"
+  },
+  {
     id: 1,
+    question: "What is your gender?",
+    options: ["Male", "Female"]
+  },
+  {
+    id: 2,
     question: "If you were a superhero, what would your power be?",
     options: ["Invisibility (ninja mode activated)", "Flying (bye bye traffic)", "Mind Reading (no more awkward convos)", "Time Control (eternal weekend!)"],
   },
   {
-    id: 2,
+    id: 3,
     question: "You've been given a time machine for a day. Where are you headed?",
     options: ["Future (flying cars please)", "Dinosaur era (just to pet one)", "90s/80s (vintage vibes)", "Stay put (2025 is wild enough)"],
   },
   {
-    id: 3,
+    id: 4,
     question: "Your phone battery is at 1% and you can only keep one app. Which one?",
     options: ["WhatsApp (gotta stay connected)", "Spotify (silence is scary)", "Instagram (FOMO is real)", "Food delivery app (survival first)"],
   },
   {
-    id: 4,
+    id: 5,
     question: "If your life had a theme song, it would be:",
     options: ["Epic movie soundtrack", "Chill lofi beats", "High-energy pop hits", "Dramatic K-drama OST"],
   },
   {
-    id: 5,
+    id: 6,
     question: "You're stuck on a desert island, you can magically summon one restaurant chain:",
     options: ["McDonald's (McNuggets forever)", "Starbucks (caffeinated survival)", "Subway (healthy-ish option)", "Pizza Hut (pizza never gets old)"],
   },
   {
-    id: 6,
+    id: 7,
     question: "Your perfect hideout spot during a zombie apocalypse would be:",
     options: ["Shopping mall (resources + roof access)", "Library (quiet + knowledge)", "Gym (strong survivor vibes)", "IKEA (endless maze + meatballs)"],
   },
   {
-    id: 7,
+    id: 8,
     question: "If your friend group was a TV show genre, it would be:",
     options: ["Sitcom (laugh track included)", "Reality TV (drama guaranteed)", "Adventure series (weekly quests)", "Cooking show (food critics unite)"],
   },
   {
-    id: 8,
+    id: 9,
     question: "You can instantly master one skill, but you have to perform it daily. Choose:",
     options: ["Mind reading (but can't turn it off)", "Teleportation (random locations only)", "Perfect memory (including embarrassing moments)", "Time freeze (but you age normally)"],
   },
   {
-    id: 9,
+    id: 10,
     question: "Your friend is sad. Your go-to mood lifter is:",
     options: ["Surprise food delivery", "Spam them with memes", "Emergency karaoke session", "Show up with bubble tea"],
   },
   {
-    id: 10,
+    id: 11,
     question: "If your personality was a bubble tea order, it would be:",
     options: ["Classic milk tea (reliable friend)", "Fruit tea (spontaneous soul)", "Brown sugar boba (trendsetter)", "Cheese foam (unique character)"],
   },
   {
-    id: 11,
+    id: 12,
     question: "You've been given a billboard for a day. What's going up?",
     options: ["Your best meme creation", "Inspirational quote + selfie", "Inside joke only friends get", "Food recommendation list"],
   },
   {
-    id: 12,
+    id: 13,
     question: "Your friend group decides to start a business. What is it?",
     options: ["Food truck (chaotic kitchen)", "Pet café (cuddles = profit)", "Tech startup (app that never launches)", "Travel agency (planning masters)"],
   },
   {
-    id: 13,
+    id: 14,
     question: "You wake up with the ability to talk to...",
     options: ["Plants (gossip with succulents)", "Animals (pet conversations)", "Food (before eating it)", "Electronics (WiFi secrets)"],
   },
   {
-    id: 14,
+    id: 15,
     question: "In group photos, you're always the one who:",
     options: ["Takes 50 versions (perfectionist)", "Makes weird faces (memory maker)", "Organizes everyone (the director)", "Is never ready (candid king/queen)"],
   },
   {
-    id: 15,
+    id: 16,
     question: "Your life motto could be summed up as:",
     options: ["Sleep is for the weak", "Food is life", "Will do it tomorrow", "Adventure is out there"],
   }
@@ -93,9 +103,15 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedAvatar, setGeneratedAvatar] = useState("");
   const [personalityData, setPersonalityData] = useState({
-    name: "",
-    description: "",
-    traits: []
+    PersonalityTraitDescription: "",
+    CareerPath: "",
+    Strengths: "",
+    Weaknesses: "",
+    traits: [
+          "",
+          "",
+          ""
+        ]
   });
   const [validationMessage, setValidationMessage] = useState(""); // Added validation message state
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -149,6 +165,12 @@ export default function Home() {
     // Remove the else block that was triggering results
   };
 
+  const handleTextInput = (value) => {
+    const newAnswers = { ...answers, [currentQuestion]: value };
+    setAnswers(newAnswers);
+    setValidationMessage(""); // Clear validation message when text is entered
+  };
+
   const handleBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
@@ -157,8 +179,15 @@ export default function Home() {
   };
 
   const handleForward = async () => {
-    if (!answers[currentQuestion]) {
-      setValidationMessage("Hold up! Pick an answer before moving forward! 🎯");
+    // Validation: Check if answer exists and is not empty (for text input)
+    const answer = answers[currentQuestion];
+    if (!answer || (typeof answer === 'string' && answer.trim() === '')) {
+      // Different validation messages for text input vs multiple choice
+      const isTextInput = !questions[currentQuestion].options;
+      const message = isTextInput 
+        ? "Please enter your name before moving forward! ✍️" 
+        : "Hold up! Pick an answer before moving forward! 🎯";
+      setValidationMessage(message);
       return;
     }
     
@@ -170,15 +199,29 @@ export default function Home() {
       
       try {
         // Generate personality first
-        const personalityResult = await generatePersonalityDescription(answers, questions, 'user-1');
-        if (personalityResult) {
-          setPersonalityData(personalityResult);
+        const personalityResult = await fetch('api/openai/personality',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            answers,
+            questions
+          }),
+        });
+
+        if(!personalityResult.ok){
+          throw new Error('Failed to generate personality');
+        }
+        const personalityData = await personalityResult.json();
+        if (personalityData) {
+          setPersonalityData(personalityData);
           setPersonalityLoaded(true);
         }
 
         // Then generate avatar
-        const prompt = generatePromptFromAnswers(answers, questions);
-        const response = await fetch('/api/openai/dalle', {
+        const prompt = ImageGenerationPrompt(answers, questions);
+        const response = await fetch('/api/openai/avatar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -275,22 +318,35 @@ export default function Home() {
                 {questions[currentQuestion].question}
               </h2>
               
-              {/* Options */}
-              <div className="grid grid-cols-1 gap-4 mb-6">
-                {questions[currentQuestion].options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswer(option)}
-                    className={`p-4 text-left rounded-lg border-2 transition-all duration-200 ${
-                      answers[currentQuestion] === option 
-                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900' 
-                        : 'border-purple-200 hover:border-purple-500 hover:bg-purple-50 dark:border-purple-700 dark:hover:border-purple-400 dark:hover:bg-purple-900'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
+              {/* Text Input for name question */}
+              {!questions[currentQuestion].options ? (
+                <div className="mb-6">
+                  <input
+                    type="text"
+                    value={answers[currentQuestion] || ""}
+                    onChange={(e) => handleTextInput(e.target.value)}
+                    placeholder="Enter your name..."
+                    className="w-full p-4 text-center rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:outline-none bg-white dark:bg-gray-700 dark:border-purple-700 dark:focus:border-purple-400 text-lg transition-all duration-200"
+                  />
+                </div>
+              ) : (
+                /* Multiple Choice Options */
+                <div className="grid grid-cols-1 gap-4 mb-6">
+                  {questions[currentQuestion].options.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAnswer(option)}
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 ${
+                        answers[currentQuestion] === option 
+                          ? 'border-purple-500 bg-purple-50 dark:bg-purple-900' 
+                          : 'border-purple-200 hover:border-purple-500 hover:bg-purple-50 dark:border-purple-700 dark:hover:border-purple-400 dark:hover:bg-purple-900'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Validation Message */}
               {validationMessage && (
@@ -375,7 +431,7 @@ export default function Home() {
             {(!isLoading && imageLoaded && personalityLoaded) && (
               <>
                 <h2 className="text-3xl font-bold mb-6">
-                  {personalityData.name}
+                  {answers[0]}
                 </h2>
 
                 {/* Avatar Image */}
@@ -401,10 +457,43 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Description */}
+                {/* Personality Trait Description */}
                 <div className="bg-purple-50 dark:bg-purple-900 p-6 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-3 text-purple-800 dark:text-purple-200">
+                    🎭 Your Personality
+                  </h3>
                   <p className="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
-                    {personalityData.description}
+                    {personalityData.PersonalityTraitDescription}
+                  </p>
+                </div>
+
+               {/*  Career Path */}
+                <div className="bg-purple-50 dark:bg-purple-900 p-6 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-3 text-purple-800 dark:text-purple-200">
+                    💼 Career Path
+                  </h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
+                    {personalityData.CareerPath}
+                  </p>
+                </div>
+
+                {/* Strengths */}
+                <div className="bg-purple-50 dark:bg-purple-900 p-6 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-3 text-purple-800 dark:text-purple-200">
+                    ✨ Your Strengths
+                  </h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
+                    {personalityData.Strengths}
+                  </p>
+                </div>
+
+                {/* Weaknesses */}
+                <div className="bg-purple-50 dark:bg-purple-900 p-6 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-3 text-purple-800 dark:text-purple-200">
+                    🎯 Areas to Grow
+                  </h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
+                    {personalityData.Weaknesses}
                   </p>
                 </div>
 

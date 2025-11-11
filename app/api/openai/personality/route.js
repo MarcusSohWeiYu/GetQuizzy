@@ -3,11 +3,11 @@ import OpenAI from "openai";
 import { z } from "zod";
 
 const PersonalitySchema = z.object({
-  name: z.string(),
-  trait1: z.string(),
-  trait2: z.string(),
-  trait3: z.string(),
-  description: z.string(),
+  traits: z.array(z.string()).length(3),
+  PersonalityTraitDescription: z.string(),
+  CareerPath: z.string(),
+  Strengths: z.string(),
+  Weaknesses: z.string(),
 });
 
 const openai = new OpenAI({
@@ -16,20 +16,20 @@ const openai = new OpenAI({
 
 export async function POST(req) {
   try {
-    const { answers, questions, userId } = await req.json();
+    const { answers, questions } = await req.json();
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
         {
           role: "system",
-          content: `You are a fun personality analyzer. Create a personality profile in JSON format with these exact fields:
+          content: `You are a fun but also informative personality analyzer, I want you to communicate in a way where you balance humor with insightful observations. Create a personality profile in JSON format with these exact fields:
           {
-            "name": "a creative personality type name",
-            "trait1": "first key trait",
-            "trait2": "second key trait",
-            "trait3": "third key trait",
-            "description": "a fun, positive 2-3 sentence description"
+            "traits" : ["first key trait", "second key trait", "third key trait"],
+            "PersonalityTraitDescription": "A brief description of the personality based on the traits",
+            "CareerPath": "Suggested career paths that align with this personality"
+            "Strengths": "Key strengths associated with this personality",
+            "Weaknesses": "Potential weaknesses or challenges for this personality"
           }`
         },
         {
@@ -48,9 +48,11 @@ export async function POST(req) {
     const parsedData = PersonalitySchema.parse(personalityData);
 
     return NextResponse.json({
-      name: parsedData.name,
-      description: parsedData.description,
-      traits: [parsedData.trait1, parsedData.trait2, parsedData.trait3]
+      traits: parsedData.traits,
+      PersonalityTraitDescription: parsedData.PersonalityTraitDescription,
+      CareerPath: parsedData.CareerPath,
+      Strengths: parsedData.Strengths,
+      Weaknesses: parsedData.Weaknesses
     });
 
   } catch (error) {
