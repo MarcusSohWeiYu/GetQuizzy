@@ -2,7 +2,6 @@ import ButtonAccount from "@/components/ButtonAccount";
 import { auth } from "@/libs/api/next-auth";
 import connectMongo from "@/libs/db/mongoose";
 import User from "@/models/User";
-import Survey from "@/models/Survey";
 import Link from "next/link";
 import ButtonDeleteSurvey from "@/components/survey/ButtonDeleteSurvey";
 
