@@ -57,39 +57,74 @@ const TOS = () => {
           className="leading-relaxed whitespace-pre-wrap"
           style={{ fontFamily: "sans-serif" }}
         >
-          {`Last Updated: September 26, 2023
+          {`Last Updated: November 24, 2025
 
-Welcome to ShipFast!
+Welcome to ${config.appName}!
 
-These Terms of Service ("Terms") govern your use of the ShipFast website at https://shipfa.st ("Website") and the services provided by ShipFast. By using our Website and services, you agree to these Terms.
+These Terms of Service ("Terms") govern your use of the ${config.appName} website and the services provided by ${config.appName}. By using our Website and services, you agree to these Terms.
 
-1. Description of ShipFast
+1. Description of ${config.appName}
 
-ShipFast is a platform that offers a JavaScript code boilerplate to assist entrepreneurs in launching their startups more efficiently.
+${config.appName} is a platform that allows users to create engaging surveys and quizzes with AI-powered character avatar rewards. Our service helps increase survey completion rates by providing personalized AI-generated avatars to respondents.
 
-2. Ownership and Usage Rights
+2. Service Usage
 
-When you purchase a package from ShipFast, you gain the right to download and use the code provided for creating applications. You own the code you create but do not have the right to resell it. We offer a full refund within 7 days of purchase, as specified in our refund policy.
+Our platform is free to use with unlimited surveys, questions, and responses. Users can:
+- Create and publish surveys
+- Generate AI-powered questions
+- Receive AI-generated character avatars for survey completions
+- Share surveys and results on social media
 
-3. User Data and Privacy
+3. User Accounts and Data
 
-We collect and store user data, including name, email, and payment information, as necessary to provide our services. For details on how we handle your data, please refer to our Privacy Policy at https://shipfa.st/privacy-policy.
+By creating an account, you agree to provide accurate information. We collect:
+- Name and email address
+- Survey data created by users
+- Response data from survey participants
+- Usage analytics and cookies
 
-4. Non-Personal Data Collection
+For details on how we handle your data, please refer to our Privacy Policy at ${config.domainName}/privacy-policy.
 
-We use web cookies to collect non-personal data for the purpose of improving our services and user experience.
+4. Content Ownership
 
-5. Governing Law
+You retain all rights to the surveys you create and the responses you collect. ${config.appName} retains the right to use anonymized, aggregated data for service improvement and analytics.
 
-These Terms are governed by the laws of France.
+5. AI-Generated Content
 
-6. Updates to the Terms
+AI-generated avatars and questions are provided "as-is." While we strive for quality, we cannot guarantee the appropriateness or accuracy of all AI-generated content. Users are responsible for reviewing and moderating their survey content.
 
-We may update these Terms from time to time. Users will be notified of any changes via email.
+6. Prohibited Uses
 
-For any questions or concerns regarding these Terms of Service, please contact us at marc@shipfa.st.
+You may not use ${config.appName} to:
+- Create surveys for illegal purposes
+- Collect sensitive personal information without proper consent
+- Harass, abuse, or harm others
+- Violate any applicable laws or regulations
+- Attempt to gain unauthorized access to our systems
 
-Thank you for using ShipFast!`}
+7. Service Availability
+
+We strive to maintain service availability but do not guarantee uninterrupted access. We reserve the right to modify, suspend, or discontinue services at any time.
+
+8. Limitation of Liability
+
+${config.appName} is provided "as-is" without warranties of any kind. We are not liable for any damages arising from the use of our service, including but not limited to data loss, service interruptions, or AI-generated content.
+
+9. Governing Law
+
+These Terms are governed by the laws of Singapore.
+
+10. Updates to the Terms
+
+We may update these Terms from time to time. Users will be notified of significant changes via email. Continued use of the service after changes constitutes acceptance of the updated Terms.
+
+11. Termination
+
+We reserve the right to terminate or suspend accounts that violate these Terms or engage in abusive behavior.
+
+For any questions or concerns regarding these Terms of Service, please contact us at marcusbusinessmanage@gmail.com.
+
+Thank you for using ${config.appName}!`}
         </pre>
       </div>
     </main>

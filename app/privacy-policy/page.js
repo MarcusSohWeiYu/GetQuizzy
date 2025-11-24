@@ -57,11 +57,11 @@ const PrivacyPolicy = () => {
           className="leading-relaxed whitespace-pre-wrap"
           style={{ fontFamily: "sans-serif" }}
         >
-          {`Last Updated: 2023-08-25
+          {`Last Updated: November 24, 2025
 
-Thank you for visiting ShipFast ("we," "us," or "our"). This Privacy Policy outlines how we collect, use, and protect your personal and non-personal information when you use our website located at https://shipfa.st (the "Website").
+Thank you for visiting ${config.appName} ("we," "us," or "our"). This Privacy Policy outlines how we collect, use, disclose, and protect your personal data in accordance with the Personal Data Protection Act 2012 (PDPA) of Singapore and other applicable data protection laws.
 
-By accessing or using the Website, you agree to the terms of this Privacy Policy. If you do not agree with the practices described in this policy, please do not use the Website.
+By accessing or using our services, you agree to the terms of this Privacy Policy. If you do not agree with the practices described in this policy, please do not use our services.
 
 1. Information We Collect
 
@@ -69,39 +69,143 @@ By accessing or using the Website, you agree to the terms of this Privacy Policy
 
 We collect the following personal information from you:
 
-Name: We collect your name to personalize your experience and communicate with you effectively.
-Email: We collect your email address to send you important information regarding your orders, updates, and communication.
-Payment Information: We collect payment details to process your orders securely. However, we do not store your payment information on our servers. Payments are processed by trusted third-party payment processors.
+- Name: To personalize your experience and identify your account
+- Email Address: For account creation, authentication, and communication
+- Survey Content: Questions, responses, and survey configurations you create
+- Response Data: Information collected from survey participants
+- Usage Data: Information about how you use our platform
 
 1.2 Non-Personal Data
 
-We may use web cookies and similar technologies to collect non-personal information such as your IP address, browser type, device information, and browsing patterns. This information helps us to enhance your browsing experience, analyze trends, and improve our services.
+We collect non-personal information including:
+- IP addresses
+- Browser type and version
+- Device information
+- Cookies and similar tracking technologies
+- Analytics data about platform usage
+
+1.3 AI-Generated Data
+
+When using our AI features, we process:
+- Survey questions and responses to generate AI avatars
+- User preferences to personalize AI-generated content
+- This data is processed through third-party AI services (OpenAI)
 
 2. Purpose of Data Collection
 
-We collect and use your personal data for the sole purpose of order processing. This includes processing your orders, sending order confirmations, providing customer support, and keeping you updated about the status of your orders.
+We collect and use your personal data for the following purposes:
 
-3. Data Sharing
+- Account Management: Creating and managing user accounts
+- Service Delivery: Enabling survey creation, AI generation, and data collection
+- Communication: Sending service updates, notifications, and support responses
+- Platform Improvement: Analyzing usage patterns to enhance our services
+- Security: Protecting against fraud, abuse, and unauthorized access
+- Legal Compliance: Meeting regulatory requirements and responding to legal requests
 
-We do not share your personal data with any third parties except as required for order processing (e.g., sharing your information with payment processors). We do not sell, trade, or rent your personal information to others.
+3. Legal Basis for Processing (PDPA Compliance)
 
-4. Children's Privacy
+Under Singapore's PDPA, we process your personal data based on:
+- Consent: You provide explicit consent when creating an account
+- Contractual Necessity: Processing required to deliver our services
+- Legitimate Interests: Service improvement and security purposes
 
-ShipFast is not intended for children under the age of 13. We do not knowingly collect personal information from children. If you are a parent or guardian and believe that your child has provided us with personal information, please contact us at the email address provided below.
+4. Data Sharing and Disclosure
 
-5. Updates to the Privacy Policy
+We may share your personal data with:
 
-We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. Any updates will be posted on this page, and we may notify you via email about significant changes.
+- Service Providers: Third-party services including:
+  * Authentication providers (Google OAuth)
+  * AI services (OpenAI for avatar generation)
+  * Cloud hosting providers
+  * Analytics services
+- Legal Requirements: When required by law, court order, or government authority
+- Business Transfers: In connection with mergers, acquisitions, or asset sales
 
-6. Contact Information
+We do NOT sell your personal data to third parties for marketing purposes.
 
-If you have any questions, concerns, or requests related to this Privacy Policy, you can contact us at:
+5. Data Retention
 
-Email: marc@shipfa.st
+We retain your personal data for as long as:
+- Your account remains active
+- Necessary to provide services
+- Required by law (minimum 3 years for business records in Singapore)
 
-For all other inquiries, please visit our Contact Us page on the Website.
+You may request deletion of your account and data at any time.
 
-By using ShipFast, you consent to the terms of this Privacy Policy.`}
+6. Your Rights Under PDPA
+
+You have the right to:
+
+- Access: Request copies of your personal data
+- Correction: Update or correct inaccurate information
+- Deletion: Request deletion of your data (subject to legal requirements)
+- Withdrawal of Consent: Withdraw consent for data processing (may affect service access)
+- Data Portability: Receive your data in a structured format
+
+To exercise these rights, contact us at marcusbusinessmanage@gmail.com.
+
+7. Data Security
+
+We implement appropriate security measures including:
+- Encryption of data in transit (SSL/TLS)
+- Secure authentication mechanisms
+- Regular security assessments
+- Access controls and monitoring
+
+However, no method of transmission over the internet is 100% secure.
+
+8. Cross-Border Data Transfers
+
+Your data may be transferred to and processed in countries outside Singapore, including the United States (for cloud services and AI processing). We ensure adequate protection through:
+- Standard contractual clauses
+- Service provider agreements
+- Compliance with PDPA transfer requirements
+
+9. Cookies and Tracking Technologies
+
+We use cookies for:
+- Authentication and security
+- User preferences
+- Analytics and performance monitoring
+
+You can control cookies through your browser settings, but some features may not function properly if cookies are disabled.
+
+10. Children's Privacy
+
+Our services are not intended for children under 13 years of age. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us immediately.
+
+11. Third-Party Links
+
+Our platform may contain links to third-party websites. We are not responsible for their privacy practices. Please review their privacy policies separately.
+
+12. Updates to This Privacy Policy
+
+We may update this Privacy Policy periodically. Significant changes will be notified via:
+- Email notification to registered users
+- Prominent notice on our website
+- Updated "Last Updated" date
+
+Continued use of our services after changes constitutes acceptance of the updated policy.
+
+13. Data Protection Officer
+
+For privacy-related inquiries or to exercise your rights, contact our Data Protection Officer:
+
+Email: marcusbusinessmanage@gmail.com
+
+14. Complaints
+
+If you believe we have not handled your personal data properly, you may lodge a complaint with:
+
+Personal Data Protection Commission (PDPC) Singapore
+Website: https://www.pdpc.gov.sg
+Email: info@pdpc.gov.sg
+
+15. Governing Law
+
+This Privacy Policy is governed by the laws of Singapore, including the Personal Data Protection Act 2012.
+
+By using ${config.appName}, you acknowledge that you have read, understood, and agree to this Privacy Policy.`}
         </pre>
       </div>
     </main>
