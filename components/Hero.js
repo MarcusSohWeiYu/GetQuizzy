@@ -63,7 +63,7 @@ const Hero = () => {
       <div className="lg:w-full scroll-animate">
         <div className="relative hover-lift rounded-2xl overflow-hidden shadow-2xl">
           <Image
-            src='/hero-image.png'
+            src='/Hero-Image.png'
             alt="Product Demo"
             className="w-full rounded-2xl"
             priority={true}
