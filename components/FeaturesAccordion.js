@@ -258,7 +258,7 @@ const FeaturesAccordion = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-24 md:py-32 space-y-24 md:space-y-32 max-w-7xl mx-auto bg-base-100 relative"
+      className="py-24 md:py-32 space-y-24 md:space-y-32 relative"
       id="features"
     >
       {/* Decorative gradient orb */}

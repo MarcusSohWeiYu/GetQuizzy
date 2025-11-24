@@ -75,7 +75,7 @@ const Problem = () => {
   }, []);
 
   return (
-    <section className="bg-neutral text-neutral-content relative overflow-hidden">
+    <section className="bg-gray-800/80 backdrop-blur-xl text-white relative overflow-hidden rounded-3xl border border-gray-700/50">
       <div ref={sectionRef} className="relative max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
         <h2 className="scroll-animate max-w-3xl mx-auto font-extrabold text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 md:mb-8 leading-tight">
           <span className="inline-block hover:scale-105 transition-transform duration-200">85%</span> of people abandon surveys before finishing

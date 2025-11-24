@@ -32,7 +32,7 @@ const WithWithout = () => {
   }, []);
 
   return (
-    <section className="bg-base-100" ref={sectionRef}>
+    <section className="transparent" ref={sectionRef}>
       <div className="max-w-5xl mx-auto px-8 py-16 md:py-32">
         <h2 className="scroll-animate text-center font-extrabold text-3xl md:text-5xl lg:text-6xl tracking-tight mb-12 md:mb-20">
           Why settle for <span className="text-error">boring</span> surveys?
