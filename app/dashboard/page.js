@@ -2,6 +2,7 @@ import ButtonAccount from "@/components/ButtonAccount";
 import { auth } from "@/libs/api/next-auth";
 import connectMongo from "@/libs/db/mongoose";
 import User from "@/models/User";
+import Survey from "@/models/Survey";
 import Link from "next/link";
 import ButtonDeleteSurvey from "@/components/survey/ButtonDeleteSurvey";
 
@@ -59,7 +60,7 @@ async function getUser() {
   const session = await auth();
 
   //Await connection to be established with the database
-  await connectMongo  
+  await connectMongo();
 
   return await User.findById(session.user.id).populate("surveys");
 }
