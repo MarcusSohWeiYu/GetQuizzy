@@ -1,6 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { getServerSession } from "next-auth";
 import config from "@/config";
 import connectMongo from "../db/mongo";
 
@@ -63,3 +64,6 @@ export const authOptions = {
     logo: `https://${config.domainName}/logoAndName.png`,
   },
 };
+
+// Helper function to get session in API routes
+export const auth = () => getServerSession(authOptions);

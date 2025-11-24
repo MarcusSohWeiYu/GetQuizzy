@@ -1,5 +1,6 @@
 import ButtonAccount from "@/components/ButtonAccount";
 import Image from "next/image";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -66,12 +67,14 @@ export default async function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <ButtonAccount />
+            <Link href="/survey/new">
             <button className="btn btn-primary">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               Create Survey
             </button>
+            </Link>
           </div>
         </div>
 

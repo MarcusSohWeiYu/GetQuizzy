@@ -1,44 +1,10 @@
 import mongoose from "mongoose";
 import toJSON from "./plugins/toJSON";
 
-// Question Schema
-const questionSchema = mongoose.Schema({
-  questionText: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  questionType: {
-    type: String,
-    required: true,
-    enum: [
-      'multiple-choice',
-      'checkboxes',
-      'text-short',
-      'text-long',
-      'dropdown',
-    ],
-  },
-  // Options for multiple choice, checkboxes, dropdown
-  options: [{
-    text: String,
-    value: String,
-  }],
-  // Question settings
-  required: {
-    type: Boolean,
-    default: false,
-  },
-  order: {
-    type: Number,
-    default: 0,
-  },
-});
-
 // Survey Schema
 const surveySchema = mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -54,8 +20,6 @@ const surveySchema = mongoose.Schema(
       enum: ['draft', 'active', 'paused', 'closed'],
       default: 'draft',
     },
-    questions: [questionSchema],
-    
     // AI Instructions for avatar generation
     aiInstructions: {
       type: String,

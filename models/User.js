@@ -36,6 +36,12 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    surveys: [
+      {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Survey"
+      },
+    ]
   },
   {
     timestamps: true,
