@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import User from "@/models/User";
+import Survey from "@/models/Survey";
+import Question from "@/models/Question";
+import Response from "@/models/Response";
 
 const connectMongo = async () => {
   if (!process.env.MONGODB_URI) {
