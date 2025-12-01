@@ -2,7 +2,7 @@
 
 import { toast } from "react-hot-toast";
 import ButtonDeleteSurvey from "./ButtonDeleteSurvey";
-import ButtonEditSurvey from "./ButtonEditSurvey";
+import ButtonViewSurvey from "./ButtonViewSurvey";
 
 export default function SurveyCard({ survey }) {
   const surveyId = survey._id;
@@ -58,7 +58,7 @@ export default function SurveyCard({ survey }) {
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           </svg>
-          Created {new Date(survey.createdAt).toLocaleDateString()}
+          <span suppressHydrationWarning>Created {new Date(survey.createdAt).toLocaleDateString()}</span>
         </div>
 
 
@@ -107,33 +107,8 @@ export default function SurveyCard({ survey }) {
 
 
         {/* Actions */}
-        <div className="flex gap-2 pt-2">
-          <button className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-sm py-2 rounded-lg hover:scale-105 transition-all duration-200 shadow-md hover:shadow-purple-500/50">
-            View Survey
-          </button>
-          <details className="dropdown dropdown-end">
-            <summary className="btn btn-square btn-ghost hover:bg-gray-700/50 text-gray-300 list-none">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
-              </svg>
-            </summary>
-            <ul className="dropdown-content menu p-2 shadow-2xl bg-gray-800 rounded-2xl w-56 border border-gray-700 space-y-1 z-[9999]">
-              <li>
-                <a className="rounded-xl hover:bg-gray-700 text-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                  </svg>
-                  Analytics (Coming Soon)
-                </a>
-              </li>
-              <li>
-                <ButtonEditSurvey surveyId={surveyId} />
-              </li>
-              <li>
-                <ButtonDeleteSurvey surveyId={surveyId} />
-              </li>
-            </ul>
-          </details>
+        <div className="pt-2">
+          <ButtonViewSurvey surveyId={surveyId} />
         </div>
       </div>
     </div>
