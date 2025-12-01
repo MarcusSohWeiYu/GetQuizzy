@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import ButtonDeleteSurvey from "./ButtonDeleteSurvey";
+import ResponsesTab from "./ResponsesTab";
 
 const AdminSurvey = ({ survey, questions }) => {
   const [activeTab, setActiveTab] = useState("questions");
@@ -12,6 +13,7 @@ const AdminSurvey = ({ survey, questions }) => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiGenerationMode, setAiGenerationMode] = useState("add"); // "add" or "edit"
+  const [responseCount, setResponseCount] = useState(0);
 
   // Initialize survey data from props
   const [surveyData, setSurveyData] = useState({
@@ -298,46 +300,6 @@ const AdminSurvey = ({ survey, questions }) => {
     });
   };
 
-  // Hardcoded responses data
-  const responsesData = [
-    {
-      id: 1,
-      userName: "Alex Johnson",
-      email: "alex@example.com",
-      submittedAt: "2025-11-25 14:30",
-      answers: {
-        1: "flying",
-        2: "pizza",
-        3: "gaming"
-      },
-      characterResult: "The Sky Explorer 🚀"
-    },
-    {
-      id: 2,
-      userName: "Sarah Chen",
-      email: "sarah@example.com",
-      submittedAt: "2025-11-25 15:45",
-      answers: {
-        1: "mindreading",
-        2: "chocolate",
-        3: "netflix"
-      },
-      characterResult: "The Mind Master 🧠"
-    },
-    {
-      id: 3,
-      userName: "Mike Rodriguez",
-      email: "mike@example.com",
-      submittedAt: "2025-11-26 09:15",
-      answers: {
-        1: "timecontrol",
-        2: "ramen",
-        3: "outdoor"
-      },
-      characterResult: "The Time Adventurer ⏰"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 pb-20">
       <div className="max-w-6xl mx-auto px-4">
@@ -409,7 +371,11 @@ const AdminSurvey = ({ survey, questions }) => {
               }`}
             >
               📊 Responses
-              <span className="ml-2 badge badge-sm bg-pink-500 text-white border-0">{responsesData.length}</span>
+              {responseCount > 0 && (
+                <span className="ml-2 badge badge-sm bg-pink-500 text-white border-0">
+                  {responseCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -736,102 +702,7 @@ const AdminSurvey = ({ survey, questions }) => {
 
           {/* Responses Tab */}
           {activeTab === "responses" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <h2 className="font-bold text-2xl text-base-content">Survey Responses</h2>
-                <div className="flex gap-2">
-                  <button className="btn btn-sm btn-outline">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                    Export CSV
-                  </button>
-                </div>
-              </div>
-
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-6 border border-purple-500/30">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-base-content/70 mb-1">Total Responses</p>
-                      <p className="text-3xl font-bold text-purple-400">{responsesData.length}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7 text-white">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-xl p-6 border border-pink-500/30">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-base-content/70 mb-1">Completion Rate</p>
-                      <p className="text-3xl font-bold text-pink-400">100%</p>
-                    </div>
-                    <div className="w-12 h-12 bg-pink-600 rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7 text-white">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-base-content/70 mb-1">Avg. Time</p>
-                      <p className="text-3xl font-bold text-orange-400">2m 30s</p>
-                    </div>
-                    <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7 text-white">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Responses List */}
-              <div className="space-y-4">
-                {responsesData.map((response) => (
-                  <div key={response.id} className="bg-base-200 rounded-2xl p-6 hover:shadow-lg transition-all border-2 border-transparent hover:border-purple-300">
-                    <div className="flex items-start justify-between flex-wrap gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {response.userName.charAt(0)}
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-base-content">{response.userName}</h3>
-                            <p className="text-sm text-base-content/60">{response.email}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-base-content/70">
-                          <span className="flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {response.submittedAt}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-2xl">🎭</span>
-                            {response.characterResult}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <button className="btn btn-sm btn-outline btn-primary">
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ResponsesTab surveyId={surveyData._id} onResponsesLoad={setResponseCount} />
           )}
 
           {/* Settings Tab */}

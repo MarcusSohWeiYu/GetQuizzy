@@ -34,6 +34,8 @@ export async function POST(req) {
       surveyId: body.surveyId,
       answers: body.answers, // Array of { questionId, answer }
       respondentId: respondentId,
+      respondentEmail: session?.user?.email || "anonymous",
+      respondentName: session?.user?.name || "Anonymous",
       metadata: body.metadata || {},
       isComplete: true,
     });

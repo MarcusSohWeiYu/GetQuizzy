@@ -13,6 +13,7 @@ import User from "@/models/User";
 
 import Survey from "@/models/Survey";
 import Question from "@/models/Question";
+import Response from "@/models/Response";
 
 //Create survery
 export async function POST(req) {
@@ -104,6 +105,9 @@ export async function DELETE(req) {
 
         //Also delete all questions associated with this survey
         await Question.deleteMany({ surveyId: surveyId });
+
+        //Also delete all responses associated with this survey
+        await Response.deleteMany({ surveyId: surveyId });
 
         //Remove survey from user's surveys array
         user.surveys = user.surveys.filter((id) => {
