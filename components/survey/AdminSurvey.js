@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const FormViewSurvey = () => {
+const AdminSurvey = ({ survey, questions }) => {
   const [activeTab, setActiveTab] = useState("questions");
   const [isEditMode, setIsEditMode] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
@@ -12,49 +12,43 @@ const FormViewSurvey = () => {
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiGenerationMode, setAiGenerationMode] = useState("add"); // "add" or "edit"
 
-  // Hardcoded survey data
+  // Initialize survey data from props
   const [surveyData, setSurveyData] = useState({
-    name: "Discover Your Vibe",
-    description: "Find out what kind of personality you have through this fun quiz!",
-    aiInstructions: "Generate a unique character avatar based on the user's responses, reflecting their personality type with vibrant colors and expressive features.",
+    _id: "",
+    name: "",
+    description: "",
+    aiInstructions: "",
     status: "active",
-    createdAt: "2025-11-20",
-    questions: [
-      {
-        id: 1,
-        title: "If you were a superhero, what would your power be?",
-        questionType: "multiple-choice",
-        options: [
-          { text: "Invisibility (ninja mode activated)", value: "invisibility" },
-          { text: "Flying (bye bye traffic)", value: "flying" },
-          { text: "Mind Reading (no more awkward convos)", value: "mindreading" },
-          { text: "Time Control (eternal weekend!)", value: "timecontrol" }
-        ]
-      },
-      {
-        id: 2,
-        title: "What's your go-to comfort food?",
-        questionType: "multiple-choice",
-        options: [
-          { text: "Pizza (obviously)", value: "pizza" },
-          { text: "Ice cream (all flavors welcome)", value: "icecream" },
-          { text: "Ramen (slurp slurp)", value: "ramen" },
-          { text: "Chocolate (the answer to everything)", value: "chocolate" }
-        ]
-      },
-      {
-        id: 3,
-        title: "How do you spend your ideal weekend?",
-        questionType: "multiple-choice",
-        options: [
-          { text: "Netflix marathon", value: "netflix" },
-          { text: "Outdoor adventures", value: "outdoor" },
-          { text: "Gaming session", value: "gaming" },
-          { text: "Sleeping in (the best activity)", value: "sleeping" }
-        ]
-      }
-    ]
+    createdAt: "",
+    questions: []
   });
+
+  // Store original data for cancel functionality
+  const [originalSurveyData, setOriginalSurveyData] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Update surveyData when props change
+  useEffect(() => {
+    if (survey && questions) {
+      const data = {
+        _id: survey._id,
+        name: survey.name || "",
+        description: survey.description || "",
+        aiInstructions: survey.aiInstructions || "",
+        status: survey.status || "active",
+        createdAt: survey.createdAt || "",
+        questions: questions.map(q => ({
+          id: q._id,
+          title: q.title || "",
+          questionType: q.questionType || "multiple-choice",
+          options: q.options || []
+        }))
+      };
+      setSurveyData(data);
+      // Save original data for cancel functionality
+      setOriginalSurveyData(JSON.parse(JSON.stringify(data)));
+    }
+  }, [survey, questions]);
 
   const updateSurveyField = (field, value) => {
     setSurveyData({ ...surveyData, [field]: value });
@@ -201,14 +195,89 @@ const FormViewSurvey = () => {
     setDragOverIndex(null);
   };
 
-  const handleSave = () => {
-    // TODO: Save to database
-    setIsEditMode(false);
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      
+      // Validate survey data
+      if (!surveyData.name.trim()) {
+        toast.error('Survey name is required');
+        return;
+      }
+      
+      if (!surveyData.description.trim()) {
+        toast.error('Survey description is required');
+        return;
+      }
+      
+      if (surveyData.questions.length === 0) {
+        toast.error('At least one question is required');
+        return;
+      }
+      
+      // Validate each question
+      for (let i = 0; i < surveyData.questions.length; i++) {
+        const q = surveyData.questions[i];
+        if (!q.title.trim()) {
+          toast.error(`Question ${i + 1} title is required`);
+          return;
+        }
+        if (q.questionType === 'multiple-choice' && q.options.length === 0) {
+          toast.error(`Question ${i + 1} needs at least one option`);
+          return;
+        }
+      }
+      
+      const response = await fetch(`/api/survey/${surveyData._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: surveyData.name,
+          description: surveyData.description,
+          aiInstructions: surveyData.aiInstructions,
+          status: surveyData.status,
+          questions: surveyData.questions
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save survey');
+      }
+      
+      toast.success('Survey saved successfully!', {
+        icon: '✅',
+        duration: 3000,
+      });
+      
+      // Update original data to new saved state
+      setOriginalSurveyData(JSON.parse(JSON.stringify(surveyData)));
+      setIsEditMode(false);
+      
+      // Reload the page to get fresh data from database
+      window.location.reload();
+      
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error(error.message || 'Failed to save survey');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    // TODO: Revert changes
+    if (originalSurveyData) {
+      // Revert to original data
+      setSurveyData(JSON.parse(JSON.stringify(originalSurveyData)));
+    }
     setIsEditMode(false);
+    toast.success('Changes cancelled', {
+      icon: '↩️',
+      duration: 2000,
+    });
   };
 
   const handleAIGenerate = () => {
@@ -269,9 +338,10 @@ const FormViewSurvey = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="bg-base-100 rounded-3xl shadow-xl overflow-hidden">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 pb-20">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="bg-base-100 rounded-3xl shadow-xl overflow-visible mb-8">
+          {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex-1">
@@ -381,12 +451,22 @@ const FormViewSurvey = () => {
                       </button>
                       <button 
                         onClick={handleSave}
+                        disabled={isSaving}
                         className="btn btn-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:scale-105 transition-transform border-0"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        Save Changes
+                        {isSaving ? (
+                          <>
+                            <span className="loading loading-spinner loading-sm"></span>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            Save Changes
+                          </>
+                        )}
                       </button>
                     </>
                   )}
@@ -860,11 +940,11 @@ const FormViewSurvey = () => {
                       <input
                         type="text"
                         className="input input-bordered flex-1"
-                        value="https://getquizzy.com/survey/discover-your-vibe"
+                        value={`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`}
                         readOnly
                       />
                       <button 
-                        onClick={() => copyToClipboard('https://getquizzy.com/survey/discover-your-vibe')}
+                        onClick={() => copyToClipboard(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`)}
                         className="btn btn-primary"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -885,11 +965,11 @@ const FormViewSurvey = () => {
                       <div className="flex gap-2">
                         <textarea
                           className="textarea textarea-bordered w-full h-20 font-mono text-sm"
-                          value='<iframe src="https://getquizzy.com/embed/survey/discover-your-vibe" width="100%" height="600" frameborder="0"></iframe>'
+                          value={`<iframe src="${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}" width="100%" height="600" frameborder="0"></iframe>`}
                           readOnly
                         />
                         <button 
-                          onClick={() => copyToClipboard('<iframe src="https://getquizzy.com/embed/survey/discover-your-vibe" width="100%" height="600" frameborder="0"></iframe>')}
+                          onClick={() => copyToClipboard(`<iframe src="${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}" width="100%" height="600" frameborder="0"></iframe>`)}
                           className="btn btn-primary"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -1050,12 +1130,12 @@ const FormViewSurvey = () => {
                   <input
                     type="text"
                     className="input input-bordered flex-1"
-                    value="https://getquizzy.com/survey/discover-your-vibe"
+                    value={`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`}
                     readOnly
                   />
                   <button 
                     onClick={() => {
-                      copyToClipboard('https://getquizzy.com/survey/discover-your-vibe');
+                      copyToClipboard(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`);
                       // Optional: Show a success message
                     }}
                     className="btn bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:scale-105 transition-transform"
@@ -1206,8 +1286,9 @@ const FormViewSurvey = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
 
-export default FormViewSurvey;
+export default AdminSurvey;
