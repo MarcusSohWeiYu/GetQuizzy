@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GeistSans, GeistMono } from 'geist/font';
+import axios from "axios";
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -70,6 +71,7 @@ export default function PublicSurvey({ survey, questions }) {
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAnswer = (answer) => {
     const newAnswers = { ...answers, [currentQuestion]: answer };
@@ -108,11 +110,45 @@ export default function PublicSurvey({ survey, questions }) {
     }
     
     if (currentQuestion === questions.length - 1) {
-      setShowResults(true);
-      // TODO: Save response to database
+      // Submit all responses to database
+      await submitAllResponses();
     } else {
       setCurrentQuestion(currentQuestion + 1);
       setValidationMessage("");
+    }
+  };
+
+  const submitAllResponses = async () => {
+    setIsSubmitting(true);
+    try {
+      // Prepare all answers in the format expected by API
+      const answersArray = questions.map((question, index) => ({
+        questionId: question._id,
+        answer: answers[index] || "", // Include all answers
+      }));
+
+      // Use survey.id or survey._id depending on how it was serialized
+      const surveyId = survey._id || survey.id;
+      console.log('Submitting:', { answers: answersArray, surveyId, survey });
+
+      // Send batch request to API
+      const response = await axios.post('/api/response', {
+        answers: answersArray,
+        surveyId: surveyId,
+        metadata: {
+          userAgent: navigator.userAgent,
+          completedAt: new Date().toISOString(),
+        }
+      });
+
+      console.log('Success:', response.data);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error submitting responses:', error);
+      console.error('Error details:', error.response?.data);
+      setValidationMessage("Oops! Something went wrong. Please try again. 😔");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -325,24 +361,34 @@ export default function PublicSurvey({ survey, questions }) {
                   
                   <button
                     onClick={handleForward}
-                    className={`flex items-center justify-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all text-base font-semibold min-w-[110px] ${
+                    disabled={isSubmitting}
+                    className={`flex items-center justify-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all text-base font-semibold min-w-[110px] disabled:opacity-50 disabled:cursor-not-allowed ${
                       currentQuestion === questions.length - 1
                         ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg shadow-green-500/50'
                         : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg shadow-purple-500/50'
                     }`}
                   >
-                    {currentQuestion === questions.length - 1 ? 'Submit' : 'Next'}
-                    {currentQuestion !== questions.length - 1 && (
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        strokeWidth={2.5} 
-                        stroke="currentColor" 
-                        className="w-5 h-5"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                      </svg>
+                    {isSubmitting ? (
+                      <>
+                        <span className="loading loading-spinner loading-sm"></span>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        {currentQuestion === questions.length - 1 ? 'Submit' : 'Next'}
+                        {currentQuestion !== questions.length - 1 && (
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            strokeWidth={2.5} 
+                            stroke="currentColor" 
+                            className="w-5 h-5"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                          </svg>
+                        )}
+                      </>
                     )}
                   </button>
                 </div>

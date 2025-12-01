@@ -50,7 +50,7 @@ export async function POST(req) {
       aiInstructions: body.aiInstructions,
     });
 
-    // Create questions if provided
+    // Create questions in the database
     if (body.questions && Array.isArray(body.questions) && body.questions.length > 0) {
       const questionsWithSurveyId = body.questions.map(q => ({
         ...q,
