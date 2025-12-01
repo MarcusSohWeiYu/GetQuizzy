@@ -21,6 +21,8 @@ const FormNewSurvey = () => {
   // To store drag state
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+  // Validation errors
+  const [errors, setErrors] = useState({});
 
   const addQuestion = () => {
     setQuestions([
@@ -182,22 +184,56 @@ const FormNewSurvey = () => {
                 <input
                   required
                   type="text"
-                  className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                  className={`input input-bordered w-full focus:outline-none focus:ring-2 transition-all ${
+                    errors.name ? 'border-error focus:ring-error' : 'focus:ring-purple-500'
+                  }`}
                   placeholder="e.g., What's Your Personality Type?"
                   value={name}
-                  onChange={(event) => setName(event.target.value)}
+                  onChange={(event) => {
+                    setName(event.target.value);
+                    if (errors.name) {
+                      const newErrors = { ...errors };
+                      delete newErrors.name;
+                      setErrors(newErrors);
+                    }
+                  }}
                 />
+                {errors.name && (
+                  <div className="flex items-start gap-2 text-error text-sm mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mt-0.5 flex-shrink-0">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>{errors.name}</span>
+                  </div>
+                )}
               </fieldset>
 
               <fieldset className="space-y-2">
                 <label className="font-semibold text-base-content">Description</label>
                 <textarea
                   required
-                  className="textarea textarea-bordered w-full h-24 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                  className={`textarea textarea-bordered w-full h-24 focus:outline-none focus:ring-2 transition-all ${
+                    errors.description ? 'border-error focus:ring-error' : 'focus:ring-purple-500'
+                  }`}
                   placeholder="Brief description of your survey..."
                   value={description}
-                  onChange={(event) => setDescription(event.target.value)}
+                  onChange={(event) => {
+                    setDescription(event.target.value);
+                    if (errors.description) {
+                      const newErrors = { ...errors };
+                      delete newErrors.description;
+                      setErrors(newErrors);
+                    }
+                  }}
                 />
+                {errors.description && (
+                  <div className="flex items-start gap-2 text-error text-sm mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mt-0.5 flex-shrink-0">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>{errors.description}</span>
+                  </div>
+                )}
               </fieldset>
 
               <fieldset className="space-y-2">
@@ -207,11 +243,28 @@ const FormNewSurvey = () => {
                 </label>
                 <textarea
                   required
-                  className="textarea textarea-bordered w-full h-24 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                  className={`textarea textarea-bordered w-full h-24 focus:outline-none focus:ring-2 transition-all ${
+                    errors.aiInstructions ? 'border-error focus:ring-error' : 'focus:ring-purple-500'
+                  }`}
                   placeholder="Describe how the AI should generate character avatars based on responses..."
                   value={aiInstructions}
-                  onChange={(event) => setAiInstructions(event.target.value)}
+                  onChange={(event) => {
+                    setAiInstructions(event.target.value);
+                    if (errors.aiInstructions) {
+                      const newErrors = { ...errors };
+                      delete newErrors.aiInstructions;
+                      setErrors(newErrors);
+                    }
+                  }}
                 />
+                {errors.aiInstructions && (
+                  <div className="flex items-start gap-2 text-error text-sm mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mt-0.5 flex-shrink-0">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>{errors.aiInstructions}</span>
+                  </div>
+                )}
               </fieldset>
             </div>
           </div>
@@ -303,11 +356,28 @@ const FormNewSurvey = () => {
                         
                         <input
                           type="text"
-                          className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all pointer-events-auto"
+                          className={`input input-bordered w-full focus:outline-none focus:ring-2 transition-all pointer-events-auto ${
+                            errors[`question_${qIndex}_title`] ? 'border-error focus:ring-error' : 'focus:ring-purple-500'
+                          }`}
                           placeholder="Type your question here..."
                           value={q.title}
-                          onChange={(e) => updateQuestion(q.id, "title", e.target.value)}
+                          onChange={(e) => {
+                            updateQuestion(q.id, "title", e.target.value);
+                            if (errors[`question_${qIndex}_title`]) {
+                              const newErrors = { ...errors };
+                              delete newErrors[`question_${qIndex}_title`];
+                              setErrors(newErrors);
+                            }
+                          }}
                         />
+                        {errors[`question_${qIndex}_title`] && (
+                          <div className="flex items-start gap-2 text-error text-sm mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mt-0.5 flex-shrink-0">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                            </svg>
+                            <span>{errors[`question_${qIndex}_title`]}</span>
+                          </div>
+                        )}
 
                         <select
                           className="select select-bordered w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all pointer-events-auto"
@@ -358,7 +428,14 @@ const FormNewSurvey = () => {
                               className="input input-sm input-bordered flex-1 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all pointer-events-auto"
                               placeholder={`Option ${optIndex + 1}`}
                               value={option.text}
-                              onChange={(e) => updateOption(q.id, optIndex, e.target.value)}
+                              onChange={(e) => {
+                                updateOption(q.id, optIndex, e.target.value);
+                                if (errors[`question_${qIndex}_options`]) {
+                                  const newErrors = { ...errors };
+                                  delete newErrors[`question_${qIndex}_options`];
+                                  setErrors(newErrors);
+                                }
+                              }}
                             />
                             {q.options.length > 1 && (
                               <button
@@ -373,6 +450,14 @@ const FormNewSurvey = () => {
                             )}
                           </div>
                         ))}
+                        {errors[`question_${qIndex}_options`] && (
+                          <div className="flex items-start gap-2 text-error text-sm mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mt-0.5 flex-shrink-0">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                            </svg>
+                            <span>{errors[`question_${qIndex}_options`]}</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -401,6 +486,34 @@ const FormNewSurvey = () => {
             </div>
           </div>
 
+          {/* Validation Warning */}
+          {Object.keys(errors).length > 0 && (
+            <div className="bg-error/10 border border-error/30 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-error flex-shrink-0 mt-0.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-semibold text-error mb-1">Please fix the errors above</p>
+                  <p className="text-sm text-error/80">All required fields must be properly filled before creating your survey.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {Object.keys(errors).length === 0 && (
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm text-purple-300">Please fill in all required fields above before proceeding to create your survey.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Submit Button */}
           <ButtonCreateSurvey 
             surveyData={{
@@ -409,6 +522,7 @@ const FormNewSurvey = () => {
               aiInstructions,
               status,
               questions: questions.map((q, index) => ({
+                // Don't include client-side id - MongoDB will generate ObjectIds
                 title: q.title,
                 questionType: q.questionType,
                 options: q.questionType === "multiple-choice" ? q.options : [],
@@ -416,6 +530,7 @@ const FormNewSurvey = () => {
                 order: index
               }))
             }}
+            setErrors={setErrors}
           />
         </div>
       </form>

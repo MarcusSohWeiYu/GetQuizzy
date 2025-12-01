@@ -90,15 +90,22 @@ export async function DELETE(req) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        //Deleting the board id from board db
+        //Connecting to the database
+        await connectMongo();
+
+        //Finding the user by id
         const user = await User.findById(session.user?.id);
 
-        //Deleting the board from the db
+        //Deleting the survey from the db (using user._id instead of session.user._id)
         await Survey.deleteOne({
             _id: surveyId,
-            userId: session?.user?._id
+            userId: user._id
         })
 
+        //Also delete all questions associated with this survey
+        await Question.deleteMany({ surveyId: surveyId });
+
+        //Remove survey from user's surveys array
         user.surveys = user.surveys.filter((id) => {
             return id.toString() !== surveyId;
         })
