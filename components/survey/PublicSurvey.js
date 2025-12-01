@@ -66,7 +66,6 @@ const adSpaces = [
 ];
 
 export default function PublicSurvey({ survey, questions }) {
-  const [surveyStarted, setSurveyStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
@@ -118,7 +117,6 @@ export default function PublicSurvey({ survey, questions }) {
   };
 
   const resetSurvey = () => {
-    setSurveyStarted(false);
     setCurrentQuestion(0);
     setAnswers({});
     setShowResults(false);
@@ -219,48 +217,7 @@ export default function PublicSurvey({ survey, questions }) {
         <main className="flex-1 lg:ml-72 lg:mr-72 flex items-center justify-center p-4 md:p-8 py-12">
           <div className="w-full max-w-3xl bg-gray-900 rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-800">
           
-          {/* Start Page */}
-          {!surveyStarted && !showResults ? (
-            <div className="text-center space-y-8">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">{survey.name}</h1>
-              <p className="text-lg md:text-xl text-gray-300 mb-8">
-                {survey.description || "Finding out your vibe"}
-              </p>
-              
-              <div className="bg-purple-800/40 backdrop-blur-sm border border-purple-500/30 p-8 rounded-2xl mb-8">
-                <h2 className="text-2xl md:text-2xl font-semibold mb-6 text-purple-200">
-                  What to Expect:
-                </h2>
-                <ul className="text-left space-y-4 text-base md:text-lg text-gray-200 max-w-md mx-auto">
-                  <li className="flex items-start gap-4">
-                    <span className="text-3xl">📝</span>
-                    <span>Answer {questions.length} thoughtful questions</span>
-                  </li>
-                  <li className="flex items-start gap-4">
-                    <span className="text-3xl">⏱️</span>
-                    <span>Takes about {Math.ceil(questions.length / 3)} minute{Math.ceil(questions.length / 3) !== 1 ? 's' : ''}</span>
-                  </li>
-                  <li className="flex items-start gap-4">
-                    <span className="text-3xl">🎯</span>
-                    <span>Get personalized results</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="space-y-6">
-                <p className="text-gray-300 text-lg">
-                  📝 {questions.length} questions • ⏱️ Takes ~{Math.ceil(questions.length / 3)} minute{Math.ceil(questions.length / 3) !== 1 ? 's' : ''}
-                </p>
-                
-                <button
-                  onClick={() => setSurveyStarted(true)}
-                  className="px-10 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xl font-bold rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/50"
-                >
-                  Start Survey 🚀
-                </button>
-              </div>
-            </div>
-          ) : !showResults ? (
+          {!showResults ? (
             <div className="space-y-8">
               <div className="text-center">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white">{survey.name}</h1>
@@ -279,7 +236,7 @@ export default function PublicSurvey({ survey, questions }) {
               
               <div className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-white leading-relaxed">
-                  {questions[currentQuestion].questionText}
+                  {questions[currentQuestion].title}
                 </h2>
                 
                 {/* Text Input */}
@@ -321,15 +278,15 @@ export default function PublicSurvey({ survey, questions }) {
                   <div className="grid grid-cols-1 gap-4 mb-8">
                     {questions[currentQuestion].options?.map((option, index) => (
                       <button
-                        key={index}
-                        onClick={() => handleAnswer(option)}
+                        key={option._id || index}
+                        onClick={() => handleAnswer(option.value || option.text || option)}
                         className={`p-5 text-left rounded-2xl border-2 transition-all duration-200 text-base md:text-lg ${
-                          answers[currentQuestion] === option 
+                          answers[currentQuestion] === (option.value || option.text || option)
                             ? 'border-purple-500 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white shadow-lg shadow-purple-500/20' 
                             : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 hover:bg-gray-750 hover:text-white'
                         }`}
                       >
-                        <span>{option}</span>
+                        <span>{option.text || option.value || option}</span>
                       </button>
                     ))}
                   </div>
