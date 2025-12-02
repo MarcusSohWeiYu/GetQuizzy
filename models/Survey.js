@@ -29,6 +29,23 @@ const surveySchema = mongoose.Schema(
       default: 'Generate a character avatar based on the survey responses',
     },
     
+    // Result Experience configuration
+    resultExperience: {
+      enabled: {
+        type: Boolean,
+        default: false,
+      },
+      components: [{
+        id: Number,
+        type: {
+          type: String,
+          enum: ['ai-avatar', 'ai-custom', 'custom-message', 'discount-code', 'cta-button', 'social-share'],
+        },
+        order: Number,
+        config: mongoose.Schema.Types.Mixed,
+      }],
+    },
+    
     // Response count
     responses: {
       type: Number,

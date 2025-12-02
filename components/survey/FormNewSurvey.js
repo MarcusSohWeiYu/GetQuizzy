@@ -6,17 +6,23 @@ import toast from "react-hot-toast";
 import ButtonCreateSurvey from "./ButtonCreateSurvey";
 
 const FormNewSurvey = () => {
+  // Wizard step state
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+
   //To store the name of the survey
   const [name, setName] = useState("");
   //Store the description of the survey
   const [description, setDescription] = useState("");
-  //To store the AI instructions
-  const [aiInstructions, setAiInstructions] = useState("");
   // To store the status of the survey
   const [status, setStatus] = useState("active");
   // To store survey questions
   const [questions, setQuestions] = useState([
     { id: 1, title: "", questionType: "multiple-choice", options: [{ text: "", value: "" }], required: false }
+  ]);
+  // Result Experience Components
+  const [resultComponents, setResultComponents] = useState([
+    { id: 1, type: 'ai-avatar', enabled: true, order: 1, config: { showPersonality: true } }
   ]);
   // To store drag state
   const [draggedIndex, setDraggedIndex] = useState(null);
@@ -236,36 +242,7 @@ const FormNewSurvey = () => {
                 )}
               </fieldset>
 
-              <fieldset className="space-y-2">
-                <label className="font-semibold text-base-content flex items-center gap-2">
-                  <span>AI Avatar Instructions</span>
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">AI Powered</span>
-                </label>
-                <textarea
-                  required
-                  className={`textarea textarea-bordered w-full h-24 focus:outline-none focus:ring-2 transition-all ${
-                    errors.aiInstructions ? 'border-error focus:ring-error' : 'focus:ring-purple-500'
-                  }`}
-                  placeholder="Describe how the AI should generate character avatars based on responses..."
-                  value={aiInstructions}
-                  onChange={(event) => {
-                    setAiInstructions(event.target.value);
-                    if (errors.aiInstructions) {
-                      const newErrors = { ...errors };
-                      delete newErrors.aiInstructions;
-                      setErrors(newErrors);
-                    }
-                  }}
-                />
-                {errors.aiInstructions && (
-                  <div className="flex items-start gap-2 text-error text-sm mt-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mt-0.5 flex-shrink-0">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                    </svg>
-                    <span>{errors.aiInstructions}</span>
-                  </div>
-                )}
-              </fieldset>
+              
             </div>
           </div>
 
@@ -519,7 +496,6 @@ const FormNewSurvey = () => {
             surveyData={{
               name,
               description,
-              aiInstructions,
               status,
               questions: questions.map((q, index) => ({
                 // Don't include client-side id - MongoDB will generate ObjectIds
