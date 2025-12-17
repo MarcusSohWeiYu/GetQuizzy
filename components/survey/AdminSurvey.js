@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ButtonDeleteSurvey from "./ButtonDeleteSurvey";
 import ResponsesTab from "./ResponsesTab";
 
 const AdminSurvey = ({ survey, questions }) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("questions");
   const [isEditMode, setIsEditMode] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
@@ -20,7 +22,6 @@ const AdminSurvey = ({ survey, questions }) => {
     _id: "",
     name: "",
     description: "",
-    aiInstructions: "",
     status: "active",
     createdAt: "",
     questions: []
@@ -37,7 +38,6 @@ const AdminSurvey = ({ survey, questions }) => {
         _id: survey._id,
         name: survey.name || "",
         description: survey.description || "",
-        aiInstructions: survey.aiInstructions || "",
         status: survey.status || "active",
         createdAt: survey.createdAt || "",
         questions: questions.map(q => ({
@@ -239,7 +239,6 @@ const AdminSurvey = ({ survey, questions }) => {
         body: JSON.stringify({
           name: surveyData.name,
           description: surveyData.description,
-          aiInstructions: surveyData.aiInstructions,
           status: surveyData.status,
           questions: surveyData.questions
         }),
@@ -303,6 +302,19 @@ const AdminSurvey = ({ survey, questions }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 pb-20">
       <div className="max-w-6xl mx-auto px-4">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="btn btn-ghost btn-sm gap-2 text-white/70 hover:text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+
         <div className="bg-base-100 rounded-3xl shadow-xl overflow-visible mb-8">
           {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white">
@@ -467,29 +479,6 @@ const AdminSurvey = ({ survey, questions }) => {
                   </div>
                 </div>
               )}
-
-              {/* AI Instructions */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-base-content mb-2">AI Avatar Instructions</h3>
-                    {isEditMode ? (
-                      <textarea
-                        className="textarea textarea-bordered w-full h-24 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                        value={surveyData.aiInstructions}
-                        onChange={(e) => updateSurveyField('aiInstructions', e.target.value)}
-                      />
-                    ) : (
-                      <p className="text-base-content/80">{surveyData.aiInstructions}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
 
               {/* Questions List */}
               <div className="space-y-6">

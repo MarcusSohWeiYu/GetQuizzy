@@ -15,8 +15,6 @@ const ButtonCreateSurvey = ({ surveyData, setErrors }) => {
         // Validate survey name
         if (!surveyData.name || !surveyData.name.trim()) {
             newErrors.name = 'Survey name is required';
-        } else if (surveyData.name.trim().length < 3) {
-            newErrors.name = 'Survey name must be at least 3 characters long';
         } else if (surveyData.name.trim().length > 100) {
             newErrors.name = 'Survey name must be less than 100 characters';
         }
@@ -24,22 +22,19 @@ const ButtonCreateSurvey = ({ surveyData, setErrors }) => {
         // Validate description
         if (!surveyData.description || !surveyData.description.trim()) {
             newErrors.description = 'Survey description is required';
-        } else if (surveyData.description.trim().length < 10) {
-            newErrors.description = 'Survey description must be at least 10 characters long';
         } else if (surveyData.description.trim().length > 500) {
             newErrors.description = 'Survey description must be less than 500 characters';
-        }
-
-        // Validate AI instructions
-        if (!surveyData.aiInstructions || !surveyData.aiInstructions.trim()) {
-            newErrors.aiInstructions = 'AI avatar instructions are required';
-        } else if (surveyData.aiInstructions.trim().length < 10) {
-            newErrors.aiInstructions = 'AI instructions must be at least 10 characters long';
         }
 
         // Validate questions
         if (!surveyData.questions || surveyData.questions.length === 0) {
             toast.error('At least one question is required');
+            return false;
+        }
+
+        // Validate result experience
+        if (!surveyData.resultExperience || !surveyData.resultExperience.components || surveyData.resultExperience.components.length === 0) {
+            toast.error('At least one result experience component is required');
             return false;
         }
 
@@ -52,8 +47,6 @@ const ButtonCreateSurvey = ({ surveyData, setErrors }) => {
             // Check question title
             if (!question.title || !question.title.trim()) {
                 newErrors[`question_${questionIndex}_title`] = `Question ${questionNum}: Title is required`;
-            } else if (question.title.trim().length < 5) {
-                newErrors[`question_${questionIndex}_title`] = `Title must be at least 5 characters long`;
             } else if (question.title.trim().length > 200) {
                 newErrors[`question_${questionIndex}_title`] = `Title must be less than 200 characters`;
             }

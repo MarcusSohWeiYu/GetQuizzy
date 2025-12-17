@@ -48,7 +48,10 @@ export async function POST(req) {
       name: body.name,
       description: body.description,
       status: body.status || "active",
-      aiInstructions: body.aiInstructions,
+      resultExperience: body.resultExperience || {
+        enabled: false,
+        components: []
+      },
     });
 
     // Create questions in the database

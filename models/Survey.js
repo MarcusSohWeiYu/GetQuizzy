@@ -22,12 +22,6 @@ const surveySchema = mongoose.Schema(
       enum: ['draft', 'active', 'paused', 'closed'],
       default: 'draft',
     },
-    // AI Instructions for avatar generation
-    aiInstructions: {
-      type: String,
-      trim: true,
-      default: 'Generate a character avatar based on the survey responses',
-    },
     
     // Result Experience configuration
     resultExperience: {
@@ -36,13 +30,23 @@ const surveySchema = mongoose.Schema(
         default: false,
       },
       components: [{
-        id: Number,
+        id: {
+          type: Number,
+          required: true,
+        },
         type: {
           type: String,
-          enum: ['ai-avatar', 'ai-custom', 'custom-message', 'discount-code', 'cta-button', 'social-share'],
+          required: true,
+          enum: ['ai-avatar', 'ai-custom', 'custom-message', 'discount-code', 'cta-button'],
         },
-        order: Number,
-        config: mongoose.Schema.Types.Mixed,
+        order: {
+          type: Number,
+          required: true,
+        },
+        config: {
+          type: mongoose.Schema.Types.Mixed,
+          default: {},
+        },
       }],
     },
     

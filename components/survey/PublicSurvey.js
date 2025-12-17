@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { GeistSans, GeistMono } from 'geist/font';
 import axios from "axios";
 
@@ -67,6 +68,7 @@ const adSpaces = [
 ];
 
 export default function PublicSurvey({ survey, questions }) {
+  const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
@@ -164,13 +166,16 @@ export default function PublicSurvey({ survey, questions }) {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-lg border-b border-gray-800 shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <a href="https://getquizzy.com" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center font-bold text-white text-lg">
-                Q
-              </div>
-              <span className="text-white font-bold text-xl hidden sm:block">GetQuizzy</span>
-            </a>
+            {/* Logo and Back Button */}
+            <div className="flex items-center gap-4">
+              
+              <a href="https://getquizzy.com" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center font-bold text-white text-lg">
+                  Q
+                </div>
+                <span className="text-white font-bold text-xl hidden sm:block">GetQuizzy</span>
+              </a>
+            </div>
 
             {/* Marketing CTA */}
             <div className="flex items-center gap-4">

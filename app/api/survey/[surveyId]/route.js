@@ -18,7 +18,7 @@ export async function PUT(req, { params }) {
 
     const { surveyId } = await params;
     const body = await req.json();
-    const { name, description, aiInstructions, status, questions } = body;
+    const { name, description, status, questions, resultExperience } = body;
 
     await connectMongo();
 
@@ -38,8 +38,13 @@ export async function PUT(req, { params }) {
     // Update survey details
     survey.name = name;
     survey.description = description;
-    survey.aiInstructions = aiInstructions;
     survey.status = status;
+    
+    // Update resultExperience if provided
+    if (resultExperience !== undefined) {
+      survey.resultExperience = resultExperience;
+    }
+    
     await survey.save();
 
     // Delete existing questions
