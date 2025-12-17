@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GeistSans, GeistMono } from 'geist/font';
 import axios from "axios";
+import SurveyResult from "./SurveyResult";
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -400,30 +401,12 @@ export default function PublicSurvey({ survey, questions }) {
               </div>
             </div>
           ) : (
-            /* Thank You Page */
-            <div className="text-center space-y-8 py-12">
-              <div className="text-7xl md:text-9xl mb-6">🎉</div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">Thank You!</h2>
-              <p className="text-xl md:text-2xl text-gray-300 mb-8">
-                Your response has been recorded successfully.
-              </p>
-              
-              <div className="bg-purple-800/40 backdrop-blur-sm border border-purple-500/30 p-8 rounded-2xl mb-8">
-                <h3 className="text-2xl md:text-3xl font-semibold mb-4 text-purple-200">
-                  ✨ What&apos;s Next?
-                </h3>
-                <p className="text-lg md:text-xl text-gray-200 leading-relaxed">
-                  Your answers will help create better experiences. Stay tuned for personalized insights!
-                </p>
-              </div>
-
-              <button
-                onClick={resetSurvey}
-                className="px-10 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-lg font-bold rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/50"
-              >
-                Take Survey Again
-              </button>
-            </div>
+            /* Results Page */
+            <SurveyResult 
+              survey={survey} 
+              questions={questions} 
+              answers={answers}
+            />
           )}
         </div>
         </main>
