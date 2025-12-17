@@ -13,7 +13,7 @@ export default function SurveyCard({ survey }) {
       return `http://localhost:3000/b/${surveyId}`;
     }
     // Replace with your actual production domain
-    return `https://getquizzy.com/b/${surveyId}`;
+    return `https://getquizzy.online/b/${surveyId}`;
   };
 
   const publicUrl = getPublicUrl();

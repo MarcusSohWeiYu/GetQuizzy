@@ -1419,11 +1419,11 @@ const AdminSurvey = ({ survey, questions }) => {
                       <input
                         type="text"
                         className="input input-bordered flex-1"
-                        value={`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`}
+                        value={`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.online'}/b/${surveyData._id}`}
                         readOnly
                       />
                       <button 
-                        onClick={() => copyToClipboard(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`)}
+                        onClick={() => copyToClipboard(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.online'}/b/${surveyData._id}`)}
                         className="btn btn-primary"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -1444,11 +1444,11 @@ const AdminSurvey = ({ survey, questions }) => {
                       <div className="flex gap-2">
                         <textarea
                           className="textarea textarea-bordered w-full h-20 font-mono text-sm"
-                          value={`<iframe src="${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}" width="100%" height="600" frameborder="0"></iframe>`}
+                          value={`<iframe src="${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.online'}/b/${surveyData._id}" width="100%" height="600" frameborder="0"></iframe>`}
                           readOnly
                         />
                         <button 
-                          onClick={() => copyToClipboard(`<iframe src="${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}" width="100%" height="600" frameborder="0"></iframe>`)}
+                          onClick={() => copyToClipboard(`<iframe src="${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.online'}/b/${surveyData._id}" width="100%" height="600" frameborder="0"></iframe>`)}
                           className="btn btn-primary"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -1604,12 +1604,12 @@ const AdminSurvey = ({ survey, questions }) => {
                   <input
                     type="text"
                     className="input input-bordered flex-1"
-                    value={`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`}
+                    value={`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.online'}/b/${surveyData._id}`}
                     readOnly
                   />
                   <button 
                     onClick={() => {
-                      copyToClipboard(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.com'}/b/${surveyData._id}`);
+                      copyToClipboard(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://getquizzy.online'}/b/${surveyData._id}`);
                       // Optional: Show a success message
                     }}
                     className="btn bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:scale-105 transition-transform"

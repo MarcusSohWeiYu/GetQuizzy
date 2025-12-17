@@ -170,7 +170,7 @@ export default function PublicSurvey({ survey, questions }) {
             {/* Logo and Back Button */}
             <div className="flex items-center gap-4">
               
-              <a href="https://getquizzy.com" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <a href="https://getquizzy.online" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center font-bold text-white text-lg">
                   Q
                 </div>
@@ -184,7 +184,7 @@ export default function PublicSurvey({ survey, questions }) {
                 <span>Want to create surveys like this?</span>
               </div>
               <a 
-                href="https://getquizzy.com/signup" 
+                href="https://getquizzy.online/signup" 
                 className="px-4 py-2 md:px-6 md:py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/30"
               >
                 Sign Up Free ✨
@@ -211,7 +211,7 @@ export default function PublicSurvey({ survey, questions }) {
               // Empty Ad Slot
               <a 
                 key={ad.id}
-                href="https://getquizzy.com/advertise"
+                href="https://getquizzy.online/advertise"
                 className="block bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-3xl p-6 hover:border-purple-500 hover:bg-gray-800/70 transition-all duration-300 text-center group"
               >
                 <div className="flex flex-col items-center text-center gap-4 py-4">
@@ -425,7 +425,7 @@ export default function PublicSurvey({ survey, questions }) {
               // Empty Ad Slot
               <a 
                 key={ad.id}
-                href="https://getquizzy.com/advertise"
+                href="https://getquizzy.online/advertise"
                 className="block bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-3xl p-6 hover:border-purple-500 hover:bg-gray-800/70 transition-all duration-300 text-center group"
               >
                 <div className="flex flex-col items-center text-center gap-4 py-4">
