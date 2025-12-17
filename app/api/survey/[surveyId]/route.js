@@ -4,7 +4,7 @@ import Survey from "@/models/Survey";
 import Question from "@/models/Question";
 import { auth } from "@/libs/api/next-auth";
 
-// PUT - Update survey and questions
+// PUT - Update survey and questions and result experience
 export async function PUT(req, { params }) {
   try {
     const session = await auth();

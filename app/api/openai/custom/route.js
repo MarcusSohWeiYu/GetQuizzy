@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
 
 export async function POST(req) {
   try {
@@ -11,53 +12,36 @@ export async function POST(req) {
       );
     }
 
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.COMPLETION_OPENAI_API_KEY;
-
-    if (!OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: "OpenAI API key is not configured" },
-        { status: 500 }
-      );
-    }
-
-    const response = await fetch("https://api.openai.com/v1/conversations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        items: [
-          {
-            type: "message",
-            role: "user",
-            content: content,
-          },
-        ],
-      }),
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || process.env.COMPLETION_OPENAI_API_KEY,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-      console.error("OpenAI API error:", errorData);
-      return NextResponse.json(
+    // Use the standard chat completions API
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo-preview",
+      messages: [
         {
-          error: "Failed to create conversation",
-          details: errorData.error || errorData.message || "Unknown error",
+          role: "user",
+          content: content,
         },
-        { status: response.status }
-      );
-    }
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    });
 
-    const data = await response.json();
+    // Extract the assistant's message
+    const assistantMessage = response.choices[0]?.message?.content || "";
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json({
+      content: assistantMessage,
+      fullResponse: response
+    }, { status: 200 });
 
   } catch (error) {
-    console.error("Conversation API error:", error);
+    console.error("OpenAI API error:", error);
     return NextResponse.json(
       {
-        error: "Failed to create conversation",
+        error: "Failed to generate content",
         details: error.message,
       },
       { status: 500 }

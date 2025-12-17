@@ -45,14 +45,37 @@ const SurveyResult = ({ survey, questions, answers }) => {
         // Format prompt using helper - answers is an object with index keys
         const prompt = ImageGenerationPrompt(aiInstructions, answers, questions);
         
-        // Call avatar API
-        const response = await axios.post('/api/openai/avatar', { prompt });
+        // Call avatar API to generate the image
+        const avatarResponse = await axios.post('/api/openai/avatar', { prompt });
+        const imageUrl = avatarResponse.data.data?.[0]?.url;
+        
+        // Call custom AI API to generate a creative name for the avatar
+        const namePrompt = `Based on this avatar description: "${prompt}". Generate a creative and catchy 2-3 word name for this character. Only return the name, nothing else. Examples: "Glamorous Tiger", "Wise Owl", "Cheerful Sunflower". Keep it short and memorable.`;
+        const nameResponse = await axios.post('/api/openai/custom', { 
+          content: namePrompt 
+        });
+        
+        // Extract the name from the response
+        let avatarName = 'Your Avatar';
+        try {
+          const nameData = nameResponse.data;
+          console.log('Avatar name response:', nameData);
+          
+          if (nameData && nameData.content) {
+            avatarName = nameData.content.trim();
+          } else if (typeof nameData === 'string') {
+            avatarName = nameData.trim();
+          }
+        } catch (e) {
+          console.error('Error parsing avatar name:', e);
+        }
         
         setComponentData(prev => ({
           ...prev,
           [componentId]: {
             type: 'ai-avatar',
-            imageUrl: response.data.data?.[0]?.url,
+            imageUrl: imageUrl,
+            avatarName: avatarName,
             prompt: prompt
           }
         }));
@@ -119,45 +142,24 @@ const SurveyResult = ({ survey, questions, answers }) => {
           <div className="flex flex-col items-center gap-6">
             {/* Avatar Image */}
             <div className="relative">
-              <div className="w-56 h-56 rounded-3xl bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-purple-500/20 border-4 border-purple-500/40 overflow-hidden shadow-2xl relative flex items-center justify-center">
+              <div className="w-64 h-64 rounded-3xl overflow-hidden shadow-2xl relative">
                 <img 
                   src={data.imageUrl}
-                  alt="AI Generated Avatar"
+                  alt={data.avatarName || "AI Generated Avatar"}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute -top-2 -left-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-2 shadow-lg">
-                <span className="text-xl">✨</span>
-              </div>
-              <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full p-2 shadow-lg">
-                <span className="text-xl">🌟</span>
-              </div>
             </div>
             
-            {/* Personality Info */}
-            <div className="text-center space-y-3 w-full">
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-                Your Unique Avatar
-              </h3>
-              <p className="text-white/60 text-sm font-medium">AI-generated based on your responses</p>
-            </div>
-            
-            {/* Personality Description */}
-            <div className="w-full bg-gradient-to-br from-purple-900/50 via-pink-900/40 to-purple-900/50 border-2 border-purple-500/40 rounded-2xl p-8 backdrop-blur-sm shadow-xl relative overflow-hidden">
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">💭</span>
-                  <h4 className="text-white/90 font-semibold text-lg">Personality Insights</h4>
-                </div>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Your personalized avatar has been generated based on your survey responses. This unique character reflects your personality traits and behavioral patterns.
-                </p>
-              </div>
-            </div>
+            {/* Avatar Name */}
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+              {data.avatarName || 'Your Avatar'}
+            </h3>
           </div>
         ) : (
-          <div className="text-center text-white/60">
-            <p>No avatar generated</p>
+          <div className="flex flex-col items-center gap-6">
+            <div className="loading loading-spinner loading-lg text-purple-500"></div>
+            <p className="text-white/60">Preparing your avatar...</p>
           </div>
         )}
       </div>
@@ -172,6 +174,23 @@ const SurveyResult = ({ survey, questions, answers }) => {
     const error = errors[componentId];
     const title = component.config?.title || 'Your Personalized Insights';
 
+    // Extract the AI-generated content from the response
+    let aiGeneratedContent = '';
+    if (data?.data) {
+      try {
+        console.log('AI Custom data:', data.data);
+        
+        // New format: direct content property
+        if (data.data.content) {
+          aiGeneratedContent = data.data.content;
+        } else if (typeof data.data === 'string') {
+          aiGeneratedContent = data.data;
+        }
+      } catch (e) {
+        console.error('Error parsing AI custom content:', e);
+      }
+    }
+
     return (
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-purple-500/20">
         {isLoading ? (
@@ -185,42 +204,44 @@ const SurveyResult = ({ survey, questions, answers }) => {
           </div>
         ) : data ? (
           <div className="space-y-6">
-            <div className="text-center">
+            <div className="text-center mb-6">
               <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 {title}
               </h3>
             </div>
             
-            {/* Render sections if available */}
-            {data.sections && data.sections.length > 0 ? (
-              <div className="space-y-4">
-                {data.sections.map((section, idx) => (
-                  <div key={idx} className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-xl p-5 backdrop-blur-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-purple-500/20 rounded-lg p-2 mt-1">
-                        <span className="text-lg">💡</span>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-purple-300 mb-2 text-lg">{section}</h4>
-                        <p className="text-white/60 text-sm leading-relaxed">
-                          AI-generated content for {section.toLowerCase()} based on your responses...
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            {/* Display AI-generated content */}
+            {aiGeneratedContent ? (
+              <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-white/90 text-base leading-relaxed whitespace-pre-wrap">
+                    {aiGeneratedContent}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-xl p-5 backdrop-blur-sm">
-                <p className="text-white/80 text-sm leading-relaxed">
-                  {data.data ? JSON.stringify(data.data, null, 2) : 'AI-generated content will appear here...'}
+              <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
+                <p className="text-white/60 text-sm text-center">
+                  Generating your personalized insights...
                 </p>
+              </div>
+            )}
+            
+            {/* Show sections if defined */}
+            {data.sections && data.sections.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                {data.sections.map((section, idx) => (
+                  <div key={idx} className="bg-purple-500/20 px-3 py-1 rounded-full text-purple-300 text-xs font-medium">
+                    {section}
+                  </div>
+                ))}
               </div>
             )}
           </div>
         ) : (
-          <div className="text-center text-white/60">
-            <p>No content generated</p>
+          <div className="flex flex-col items-center gap-6">
+            <div className="loading loading-spinner loading-lg text-purple-500"></div>
+            <p className="text-white/60">Preparing your insights...</p>
           </div>
         )}
       </div>

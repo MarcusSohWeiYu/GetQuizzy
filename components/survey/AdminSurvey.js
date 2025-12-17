@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ButtonDeleteSurvey from "./ButtonDeleteSurvey";
 import ResponsesTab from "./ResponsesTab";
+import ComponentLibrary, { availableComponents } from "./resultComponents/ComponentLibrary";
+import AIAvatarComponent from "./resultComponents/AIAvatarComponent";
+import AICustomComponent from "./resultComponents/AICustomComponent";
 
 const AdminSurvey = ({ survey, questions }) => {
   const router = useRouter();
@@ -24,7 +27,11 @@ const AdminSurvey = ({ survey, questions }) => {
     description: "",
     status: "active",
     createdAt: "",
-    questions: []
+    questions: [],
+    resultExperience: {
+      enabled: false,
+      components: []
+    }
   });
 
   // Store original data for cancel functionality
@@ -45,7 +52,11 @@ const AdminSurvey = ({ survey, questions }) => {
           title: q.title || "",
           questionType: q.questionType || "multiple-choice",
           options: q.options || []
-        }))
+        })),
+        resultExperience: survey.resultExperience || {
+          enabled: false,
+          components: []
+        }
       };
       setSurveyData(data);
       // Save original data for cancel functionality
@@ -55,6 +66,67 @@ const AdminSurvey = ({ survey, questions }) => {
 
   const updateSurveyField = (field, value) => {
     setSurveyData({ ...surveyData, [field]: value });
+  };
+
+  // Result Experience Functions
+  const getDefaultConfig = (type) => {
+    switch (type) {
+      case 'ai-avatar':
+        return { aiInstructions: 'Create a unique character based on their survey responses. The avatar should reflect their personality traits, communication style, and behavioral patterns.' };
+      case 'ai-custom':
+        return { title: 'Your Personalized Insights', prompt: '', sections: [] };
+      case 'custom-message':
+        return { message: 'Thank you for completing our survey!' };
+      case 'discount-code':
+        return { code: 'SURVEY20', message: 'Get 20% off your next purchase!' };
+      case 'cta-button':
+        return { buttonText: 'Visit Website', buttonUrl: 'https://example.com' };
+      default:
+        return {};
+    }
+  };
+
+  const addResultComponent = (type) => {
+    const newComponent = {
+      id: Date.now(),
+      type: type,
+      order: surveyData.resultExperience.components.length,
+      config: getDefaultConfig(type)
+    };
+    
+    setSurveyData({
+      ...surveyData,
+      resultExperience: {
+        ...surveyData.resultExperience,
+        components: [...surveyData.resultExperience.components, newComponent]
+      }
+    });
+  };
+
+  const removeResultComponent = (componentId) => {
+    setSurveyData({
+      ...surveyData,
+      resultExperience: {
+        ...surveyData.resultExperience,
+        components: surveyData.resultExperience.components
+          .filter(c => c.id !== componentId)
+          .map((c, index) => ({ ...c, order: index }))
+      }
+    });
+  };
+
+  const updateComponentConfig = (componentId, field, value) => {
+    setSurveyData({
+      ...surveyData,
+      resultExperience: {
+        ...surveyData.resultExperience,
+        components: surveyData.resultExperience.components.map(c =>
+          c.id === componentId
+            ? { ...c, config: { ...c.config, [field]: value } }
+            : c
+        )
+      }
+    });
   };
 
   const updateQuestion = (questionId, field, value) => {
@@ -240,7 +312,8 @@ const AdminSurvey = ({ survey, questions }) => {
           name: surveyData.name,
           description: surveyData.description,
           status: surveyData.status,
-          questions: surveyData.questions
+          questions: surveyData.questions,
+          resultExperience: surveyData.resultExperience
         }),
       });
       
@@ -373,6 +446,16 @@ const AdminSurvey = ({ survey, questions }) => {
               }`}
             >
               📝 Questions
+            </button>
+            <button
+              onClick={() => setActiveTab("results")}
+              className={`px-6 py-3 font-semibold rounded-t-xl transition-all ${
+                activeTab === "results"
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-white"
+              }`}
+            >
+              ✨ Result Experience
             </button>
             <button
               onClick={() => setActiveTab("responses")}
@@ -692,6 +775,334 @@ const AdminSurvey = ({ survey, questions }) => {
           {/* Responses Tab */}
           {activeTab === "responses" && (
             <ResponsesTab surveyId={surveyData._id} onResponsesLoad={setResponseCount} />
+          )}
+
+          {/* Result Experience Tab */}
+          {activeTab === "results" && (
+            <div className="space-y-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-bold text-2xl text-base-content">Result Experience</h2>
+                  <p className="text-base-content/60 text-sm mt-1">Customize what users see after completing your survey</p>
+                </div>
+                <div className="flex gap-2">
+                  {!isEditMode ? (
+                    <button 
+                      onClick={() => setIsEditMode(true)}
+                      className="btn btn-sm bg-purple-600 text-white hover:bg-purple-700 border-0"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                      </svg>
+                      Edit Results
+                    </button>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={handleCancel}
+                        className="btn btn-sm btn-ghost"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="btn btn-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:scale-105 transition-transform border-0"
+                      >
+                        {isSaving ? (
+                          <>
+                            <span className="loading loading-spinner loading-sm"></span>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            Save Changes
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+
+              {/* Result Components Section */}
+              {(
+                <div className="space-y-6">
+                  {isEditMode ? (
+                    // Edit Mode - Show Component Library + Added Components
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* Component Library */}
+                      <ComponentLibrary 
+                        resultComponents={surveyData.resultExperience.components}
+                        onAddComponent={addResultComponent}
+                      />
+
+                      {/* Added Components */}
+                      <div className="lg:col-span-1">
+                        <h3 className="font-semibold text-base-content mb-3 flex items-center gap-2">
+                          <span>📋</span>
+                          Added Components ({surveyData.resultExperience.components.length})
+                        </h3>
+                        {surveyData.resultExperience.components.length === 0 ? (
+                          <div className="bg-base-200 rounded-xl p-8 text-center border-2 border-dashed border-base-300">
+                            <span className="text-4xl mb-2 block">👈</span>
+                            <p className="text-base-content/60 text-sm">
+                              Add components from the library to customize your result experience
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {surveyData.resultExperience.components
+                              .sort((a, b) => a.order - b.order)
+                              .map((comp) => {
+                                const compInfo = availableComponents.find(c => c.type === comp.type);
+                                return (
+                                  <div
+                                    key={comp.id}
+                                    className="bg-base-200 rounded-xl p-4 border-2 border-primary/30 hover:border-primary/60 transition-all"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-2xl">{compInfo?.icon}</span>
+                                      <div className="flex-1">
+                                        <h4 className="font-semibold text-sm">{compInfo?.title}</h4>
+                                        <p className="text-xs text-base-content/50">Order: {comp.order + 1}</p>
+                                      </div>
+                                      <button
+                                        onClick={() => removeResultComponent(comp.id)}
+                                        className="btn btn-xs btn-ghost text-error hover:bg-error/10"
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    // View Mode - Show Component Previews Only
+                    <div>
+                      <h3 className="font-semibold text-base-content mb-3 text-lg">
+                        Preview
+                      </h3>
+                      {surveyData.resultExperience.components.length === 0 ? (
+                        <div className="bg-base-200 rounded-xl p-12 text-center border-2 border-dashed border-base-300">
+                          <span className="text-6xl mb-4 block">📭</span>
+                          <p className="text-base-content/60 text-lg font-semibold mb-2">
+                            No components added yet
+                          </p>
+                          <p className="text-base-content/50 text-sm">
+                            Click &quot;Edit Results&quot; to add components to your result experience
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {surveyData.resultExperience.components
+                            .sort((a, b) => a.order - b.order)
+                            .map((comp) => (
+                              <div key={comp.id}>
+                                {comp.type === 'ai-avatar' && (
+                                  <AIAvatarComponent
+                                    comp={comp}
+                                    updateComponentConfig={() => {}}
+                                    removeComponent={() => {}}
+                                  />
+                                )}
+                                {comp.type === 'ai-custom' && (
+                                  <AICustomComponent
+                                    comp={comp}
+                                    updateComponentConfig={() => {}}
+                                    removeComponent={() => {}}
+                                  />
+                                )}
+                                {comp.type === 'custom-message' && (
+                                  <div className="bg-base-200 rounded-2xl p-8 border-2 border-base-300 text-center">
+                                    <div className="flex items-center justify-center gap-2 mb-4">
+                                      <span className="text-3xl">💬</span>
+                                      <h4 className="font-semibold text-lg">Custom Message</h4>
+                                    </div>
+                                    <p className="text-base-content/80">{comp.config.message || 'No message set'}</p>
+                                  </div>
+                                )}
+                                {comp.type === 'discount-code' && (
+                                  <div className="bg-base-200 rounded-2xl p-8 border-2 border-base-300 text-center">
+                                    <div className="flex items-center justify-center gap-2 mb-4">
+                                      <span className="text-3xl">🎁</span>
+                                      <h4 className="font-semibold text-lg">Discount Code</h4>
+                                    </div>
+                                    <div className="bg-base-300 rounded-lg p-4 inline-block">
+                                      <code className="text-xl font-bold">{comp.config.code || 'SURVEY20'}</code>
+                                    </div>
+                                    <p className="text-base-content/70 mt-3">{comp.config.message || 'Get 20% off your next purchase!'}</p>
+                                  </div>
+                                )}
+                                {comp.type === 'cta-button' && (
+                                  <div className="bg-base-200 rounded-2xl p-8 border-2 border-base-300 text-center">
+                                    <div className="flex items-center justify-center gap-2 mb-4">
+                                      <span className="text-3xl">🔗</span>
+                                      <h4 className="font-semibold text-lg">Call-to-Action Button</h4>
+                                    </div>
+                                    <button className="btn btn-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+                                      {comp.config.buttonText || 'Visit Website'}
+                                    </button>
+                                    <p className="text-sm text-base-content/50 mt-3">{comp.config.buttonUrl || 'https://example.com'}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Component Configuration */}
+                  {isEditMode && surveyData.resultExperience.components.length > 0 && (
+                    <div className="space-y-6">
+                      <div className="divider">
+                        <span className="text-base-content/60 text-sm font-semibold">Configure Components</span>
+                      </div>
+                      
+                      {surveyData.resultExperience.components
+                        .sort((a, b) => a.order - b.order)
+                        .map((comp) => (
+                          <div key={comp.id}>
+                            {comp.type === 'ai-avatar' && (
+                              <AIAvatarComponent
+                                comp={comp}
+                                updateComponentConfig={updateComponentConfig}
+                                removeComponent={removeResultComponent}
+                              />
+                            )}
+                            {comp.type === 'ai-custom' && (
+                              <AICustomComponent
+                                comp={comp}
+                                updateComponentConfig={updateComponentConfig}
+                                removeComponent={removeResultComponent}
+                              />
+                            )}
+                            {comp.type === 'custom-message' && (
+                              <div className="relative group">
+                                <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
+                                  <button
+                                    onClick={() => removeResultComponent(comp.id)}
+                                    className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
+                                  >
+                                    ✕
+                                  </button>
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">💬</span>
+                                      <h4 className="font-semibold">Custom Message</h4>
+                                    </div>
+                                    <textarea
+                                      className="textarea textarea-bordered w-full min-h-[100px]"
+                                      value={comp.config.message || ''}
+                                      onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
+                                      placeholder="Enter your custom message..."
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {comp.type === 'discount-code' && (
+                              <div className="relative group">
+                                <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
+                                  <button
+                                    onClick={() => removeResultComponent(comp.id)}
+                                    className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
+                                  >
+                                    ✕
+                                  </button>
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">🎁</span>
+                                      <h4 className="font-semibold">Discount Code</h4>
+                                    </div>
+                                    <div>
+                                      <label className="label">
+                                        <span className="label-text">Discount Code</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        className="input input-bordered w-full"
+                                        value={comp.config.code || ''}
+                                        onChange={(e) => updateComponentConfig(comp.id, 'code', e.target.value)}
+                                        placeholder="SURVEY20"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="label">
+                                        <span className="label-text">Message</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        className="input input-bordered w-full"
+                                        value={comp.config.message || ''}
+                                        onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
+                                        placeholder="Get 20% off your next purchase!"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {comp.type === 'cta-button' && (
+                              <div className="relative group">
+                                <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
+                                  <button
+                                    onClick={() => removeResultComponent(comp.id)}
+                                    className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
+                                  >
+                                    ✕
+                                  </button>
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">🔗</span>
+                                      <h4 className="font-semibold">Call-to-Action Button</h4>
+                                    </div>
+                                    <div>
+                                      <label className="label">
+                                        <span className="label-text">Button Text</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        className="input input-bordered w-full"
+                                        value={comp.config.buttonText || ''}
+                                        onChange={(e) => updateComponentConfig(comp.id, 'buttonText', e.target.value)}
+                                        placeholder="Visit Website"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="label">
+                                        <span className="label-text">Button URL</span>
+                                      </label>
+                                      <input
+                                        type="url"
+                                        className="input input-bordered w-full"
+                                        value={comp.config.buttonUrl || ''}
+                                        onChange={(e) => updateComponentConfig(comp.id, 'buttonUrl', e.target.value)}
+                                        placeholder="https://example.com"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Settings Tab */}

@@ -198,7 +198,7 @@ export default function PublicSurvey({ survey, questions }) {
       <div className="flex flex-col lg:flex-row min-h-screen pt-16">
         
         {/* Left Ad Space - Fixed to left edge on desktop */}
-        <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 p-6 fixed left-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+        <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 p-6 fixed left-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
           {/* Ad Disclaimer */}
           <div className="text-center mb-2">
             <p className="text-xs text-purple-200/60 leading-relaxed">
@@ -412,7 +412,7 @@ export default function PublicSurvey({ survey, questions }) {
         </main>
 
         {/* Right Ad Space - Fixed to right edge on desktop */}
-        <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 p-6 fixed right-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+        <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 p-6 fixed right-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
           {/* Ad Disclaimer */}
           <div className="text-center mb-2">
             <p className="text-xs text-purple-200/60 leading-relaxed">
