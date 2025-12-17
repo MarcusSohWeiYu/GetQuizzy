@@ -184,7 +184,7 @@ export default function PublicSurvey({ survey, questions }) {
                 <span>Want to create surveys like this?</span>
               </div>
               <a 
-                href="https://getquizzy.online/signup" 
+                href="https://www.getquizzy.online/signin?callbackUrl=https%3A%2F%2Fwww.getquizzy.online%2Fdashboard" 
                 className="px-4 py-2 md:px-6 md:py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/30"
               >
                 Sign Up Free ✨
