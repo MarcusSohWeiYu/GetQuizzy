@@ -19,6 +19,8 @@ const AdminSurvey = ({ survey, questions }) => {
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiGenerationMode, setAiGenerationMode] = useState("add"); // "add" or "edit"
   const [responseCount, setResponseCount] = useState(0);
+  const [draggedComponentIndex, setDraggedComponentIndex] = useState(null);
+  const [dragOverComponentIndex, setDragOverComponentIndex] = useState(null);
 
   // Initialize survey data from props
   const [surveyData, setSurveyData] = useState({
@@ -127,6 +129,93 @@ const AdminSurvey = ({ survey, questions }) => {
         )
       }
     });
+  };
+
+  // Drag and Drop handlers for components
+  const handleComponentDragStart = (e, index) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", index.toString());
+    setDraggedComponentIndex(index);
+  };
+
+  const handleComponentDragEnd = (e) => {
+    e.currentTarget.style.opacity = "1";
+    setDraggedComponentIndex(null);
+    setDragOverComponentIndex(null);
+  };
+
+  const handleComponentDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    
+    // Auto-scroll when dragging near edges
+    const scrollThreshold = 100;
+    const scrollSpeed = 10;
+    const viewportHeight = window.innerHeight;
+    const mouseY = e.clientY;
+    
+    if (mouseY < scrollThreshold) {
+      window.scrollBy(0, -scrollSpeed);
+    } else if (mouseY > viewportHeight - scrollThreshold) {
+      window.scrollBy(0, scrollSpeed);
+    }
+  };
+
+  const handleComponentDragEnter = (e, index) => {
+    e.preventDefault();
+    if (draggedComponentIndex !== index) {
+      setDragOverComponentIndex(index);
+    }
+  };
+
+  const handleComponentDragLeave = (e) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+      setDragOverComponentIndex(null);
+    }
+  };
+
+  const handleComponentDrop = (e, dropIndex) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const actualDragIndex = draggedComponentIndex;
+    
+    if (actualDragIndex === null || actualDragIndex === dropIndex) {
+      setDragOverComponentIndex(null);
+      return;
+    }
+    
+    const newComponents = [...surveyData.resultExperience.components];
+    const [draggedItem] = newComponents.splice(actualDragIndex, 1);
+    
+    let insertIndex;
+    if (actualDragIndex < dropIndex) {
+      insertIndex = dropIndex;
+    } else {
+      insertIndex = dropIndex;
+    }
+    
+    newComponents.splice(insertIndex, 0, draggedItem);
+    
+    // Update order property
+    const reorderedComponents = newComponents.map((c, index) => ({
+      ...c,
+      order: index
+    }));
+    
+    setSurveyData({
+      ...surveyData,
+      resultExperience: {
+        ...surveyData.resultExperience,
+        components: reorderedComponents
+      }
+    });
+    setDragOverComponentIndex(null);
   };
 
   const updateQuestion = (questionId, field, value) => {
@@ -846,6 +935,7 @@ const AdminSurvey = ({ survey, questions }) => {
                         <h3 className="font-semibold text-base-content mb-3 flex items-center gap-2">
                           <span>📋</span>
                           Added Components ({surveyData.resultExperience.components.length})
+                          <span className="text-xs text-base-content/50 font-normal">(Drag to reorder)</span>
                         </h3>
                         {surveyData.resultExperience.components.length === 0 ? (
                           <div className="bg-base-200 rounded-xl p-8 text-center border-2 border-dashed border-base-300">
@@ -858,27 +948,62 @@ const AdminSurvey = ({ survey, questions }) => {
                           <div className="space-y-3">
                             {surveyData.resultExperience.components
                               .sort((a, b) => a.order - b.order)
-                              .map((comp) => {
+                              .map((comp, compIndex) => {
                                 const compInfo = availableComponents.find(c => c.type === comp.type);
                                 return (
-                                  <div
-                                    key={comp.id}
-                                    className="bg-base-200 rounded-xl p-4 border-2 border-primary/30 hover:border-primary/60 transition-all"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-2xl">{compInfo?.icon}</span>
-                                      <div className="flex-1">
-                                        <h4 className="font-semibold text-sm">{compInfo?.title}</h4>
-                                        <p className="text-xs text-base-content/50">Order: {comp.order + 1}</p>
+                                  <div key={comp.id}>
+                                    <div
+                                      draggable
+                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                      onDragEnd={handleComponentDragEnd}
+                                      onDragOver={handleComponentDragOver}
+                                      onDragEnter={(e) => handleComponentDragEnter(e, compIndex)}
+                                      onDragLeave={handleComponentDragLeave}
+                                      onDrop={(e) => handleComponentDrop(e, compIndex)}
+                                      className="relative"
+                                    >
+                                      {/* Drop indicator - shows above */}
+                                      {dragOverComponentIndex === compIndex && draggedComponentIndex !== null && draggedComponentIndex > compIndex && (
+                                        <div className="absolute -top-1.5 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg z-10 animate-pulse"></div>
+                                      )}
+
+                                      <div className={`bg-base-200 rounded-xl p-4 border-2 transition-all ${
+                                        draggedComponentIndex === compIndex 
+                                          ? 'opacity-50 border-purple-400' 
+                                          : dragOverComponentIndex === compIndex 
+                                          ? 'border-purple-400 shadow-xl scale-105' 
+                                          : 'border-primary/30 hover:border-primary/60'
+                                      }`}>
+                                        <div className="flex items-center gap-3">
+                                          {/* Drag Handle */}
+                                          <div className="cursor-move text-base-content/40 hover:text-base-content/70 transition-colors pointer-events-auto flex-shrink-0" title="Drag to reorder">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                              <circle cx="4" cy="4" r="1.5"/>
+                                              <circle cx="4" cy="12" r="1.5"/>
+                                              <circle cx="12" cy="4" r="1.5"/>
+                                              <circle cx="12" cy="12" r="1.5"/>
+                                            </svg>
+                                          </div>
+                                          <span className="text-2xl">{compInfo?.icon}</span>
+                                          <div className="flex-1">
+                                            <h4 className="font-semibold text-sm">{compInfo?.title}</h4>
+                                            <p className="text-xs text-base-content/50">Order: {comp.order + 1}</p>
+                                          </div>
+                                          <button
+                                            onClick={() => removeResultComponent(comp.id)}
+                                            className="btn btn-xs btn-ghost text-error hover:bg-error/10 pointer-events-auto"
+                                          >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                          </button>
+                                        </div>
                                       </div>
-                                      <button
-                                        onClick={() => removeResultComponent(comp.id)}
-                                        className="btn btn-xs btn-ghost text-error hover:bg-error/10"
-                                      >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                      </button>
+
+                                      {/* Drop indicator - shows below */}
+                                      {dragOverComponentIndex === compIndex && draggedComponentIndex !== null && draggedComponentIndex < compIndex && (
+                                        <div className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg z-10 animate-pulse"></div>
+                                      )}
                                     </div>
                                   </div>
                                 );
@@ -967,135 +1092,217 @@ const AdminSurvey = ({ survey, questions }) => {
                   {isEditMode && surveyData.resultExperience.components.length > 0 && (
                     <div className="space-y-6">
                       <div className="divider">
-                        <span className="text-base-content/60 text-sm font-semibold">Configure Components</span>
+                        <span className="text-base-content/60 text-sm font-semibold">Configure Components (Drag to Reorder)</span>
                       </div>
                       
                       {surveyData.resultExperience.components
                         .sort((a, b) => a.order - b.order)
-                        .map((comp) => (
+                        .map((comp, compIndex) => (
                           <div key={comp.id}>
-                            {comp.type === 'ai-avatar' && (
-                              <AIAvatarComponent
-                                comp={comp}
-                                updateComponentConfig={updateComponentConfig}
-                                removeComponent={removeResultComponent}
-                              />
-                            )}
-                            {comp.type === 'ai-custom' && (
-                              <AICustomComponent
-                                comp={comp}
-                                updateComponentConfig={updateComponentConfig}
-                                removeComponent={removeResultComponent}
-                              />
-                            )}
-                            {comp.type === 'custom-message' && (
-                              <div className="relative group">
-                                <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
-                                  <button
-                                    onClick={() => removeResultComponent(comp.id)}
-                                    className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
-                                  >
-                                    ✕
-                                  </button>
-                                  <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-2xl">💬</span>
-                                      <h4 className="font-semibold">Custom Message</h4>
+                            <div
+                              draggable
+                              onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                              onDragEnd={handleComponentDragEnd}
+                              onDragOver={handleComponentDragOver}
+                              onDragEnter={(e) => handleComponentDragEnter(e, compIndex)}
+                              onDragLeave={handleComponentDragLeave}
+                              onDrop={(e) => handleComponentDrop(e, compIndex)}
+                              className="relative"
+                            >
+                              {/* Drop indicator - shows above */}
+                              {dragOverComponentIndex === compIndex && draggedComponentIndex !== null && draggedComponentIndex > compIndex && (
+                                <div className="absolute -top-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg z-10 animate-pulse"></div>
+                              )}
+
+                              <div className={`transition-all duration-300 ${
+                                draggedComponentIndex === compIndex 
+                                  ? 'opacity-50' 
+                                  : dragOverComponentIndex === compIndex 
+                                  ? 'scale-[1.02] shadow-2xl' 
+                                  : ''
+                              }`}>
+                                {comp.type === 'ai-avatar' && (
+                                  <div className="relative group">
+                                    {/* Drag Handle */}
+                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="4" cy="4" r="1.5"/>
+                                        <circle cx="4" cy="12" r="1.5"/>
+                                        <circle cx="12" cy="4" r="1.5"/>
+                                        <circle cx="12" cy="12" r="1.5"/>
+                                      </svg>
                                     </div>
-                                    <textarea
-                                      className="textarea textarea-bordered w-full min-h-[100px]"
-                                      value={comp.config.message || ''}
-                                      onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
-                                      placeholder="Enter your custom message..."
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                            {comp.type === 'discount-code' && (
-                              <div className="relative group">
-                                <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
-                                  <button
-                                    onClick={() => removeResultComponent(comp.id)}
-                                    className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
-                                  >
-                                    ✕
-                                  </button>
-                                  <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-2xl">🎁</span>
-                                      <h4 className="font-semibold">Discount Code</h4>
-                                    </div>
-                                    <div>
-                                      <label className="label">
-                                        <span className="label-text">Discount Code</span>
-                                      </label>
-                                      <input
-                                        type="text"
-                                        className="input input-bordered w-full"
-                                        value={comp.config.code || ''}
-                                        onChange={(e) => updateComponentConfig(comp.id, 'code', e.target.value)}
-                                        placeholder="SURVEY20"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="label">
-                                        <span className="label-text">Message</span>
-                                      </label>
-                                      <input
-                                        type="text"
-                                        className="input input-bordered w-full"
-                                        value={comp.config.message || ''}
-                                        onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
-                                        placeholder="Get 20% off your next purchase!"
+                                    <div className="pointer-events-none">
+                                      <AIAvatarComponent
+                                        comp={comp}
+                                        updateComponentConfig={updateComponentConfig}
+                                        removeComponent={removeResultComponent}
                                       />
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                            )}
-                            {comp.type === 'cta-button' && (
-                              <div className="relative group">
-                                <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
-                                  <button
-                                    onClick={() => removeResultComponent(comp.id)}
-                                    className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
-                                  >
-                                    ✕
-                                  </button>
-                                  <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-2xl">🔗</span>
-                                      <h4 className="font-semibold">Call-to-Action Button</h4>
+                                )}
+                                {comp.type === 'ai-custom' && (
+                                  <div className="relative group">
+                                    {/* Drag Handle */}
+                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="4" cy="4" r="1.5"/>
+                                        <circle cx="4" cy="12" r="1.5"/>
+                                        <circle cx="12" cy="4" r="1.5"/>
+                                        <circle cx="12" cy="12" r="1.5"/>
+                                      </svg>
                                     </div>
-                                    <div>
-                                      <label className="label">
-                                        <span className="label-text">Button Text</span>
-                                      </label>
-                                      <input
-                                        type="text"
-                                        className="input input-bordered w-full"
-                                        value={comp.config.buttonText || ''}
-                                        onChange={(e) => updateComponentConfig(comp.id, 'buttonText', e.target.value)}
-                                        placeholder="Visit Website"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="label">
-                                        <span className="label-text">Button URL</span>
-                                      </label>
-                                      <input
-                                        type="url"
-                                        className="input input-bordered w-full"
-                                        value={comp.config.buttonUrl || ''}
-                                        onChange={(e) => updateComponentConfig(comp.id, 'buttonUrl', e.target.value)}
-                                        placeholder="https://example.com"
+                                    <div className="pointer-events-none">
+                                      <AICustomComponent
+                                        comp={comp}
+                                        updateComponentConfig={updateComponentConfig}
+                                        removeComponent={removeResultComponent}
                                       />
                                     </div>
                                   </div>
-                                </div>
+                                )}
+                                {comp.type === 'custom-message' && (
+                                  <div className="relative group">
+                                    {/* Drag Handle */}
+                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="4" cy="4" r="1.5"/>
+                                        <circle cx="4" cy="12" r="1.5"/>
+                                        <circle cx="12" cy="4" r="1.5"/>
+                                        <circle cx="12" cy="12" r="1.5"/>
+                                      </svg>
+                                    </div>
+                                    <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
+                                      <button
+                                        onClick={() => removeResultComponent(comp.id)}
+                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-auto"
+                                      >
+                                        ✕
+                                      </button>
+                                      <div className="space-y-4 pl-8">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-2xl">💬</span>
+                                          <h4 className="font-semibold">Custom Message</h4>
+                                        </div>
+                                        <textarea
+                                          className="textarea textarea-bordered w-full min-h-[100px] pointer-events-auto"
+                                          value={comp.config.message || ''}
+                                          onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
+                                          placeholder="Enter your custom message..."
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                {comp.type === 'discount-code' && (
+                                  <div className="relative group">
+                                    {/* Drag Handle */}
+                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="4" cy="4" r="1.5"/>
+                                        <circle cx="4" cy="12" r="1.5"/>
+                                        <circle cx="12" cy="4" r="1.5"/>
+                                        <circle cx="12" cy="12" r="1.5"/>
+                                      </svg>
+                                    </div>
+                                    <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
+                                      <button
+                                        onClick={() => removeResultComponent(comp.id)}
+                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-auto"
+                                      >
+                                        ✕
+                                      </button>
+                                      <div className="space-y-4 pl-8">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-2xl">🎁</span>
+                                          <h4 className="font-semibold">Discount Code</h4>
+                                        </div>
+                                        <div>
+                                          <label className="label">
+                                            <span className="label-text">Discount Code</span>
+                                          </label>
+                                          <input
+                                            type="text"
+                                            className="input input-bordered w-full pointer-events-auto"
+                                            value={comp.config.code || ''}
+                                            onChange={(e) => updateComponentConfig(comp.id, 'code', e.target.value)}
+                                            placeholder="SURVEY20"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="label">
+                                            <span className="label-text">Message</span>
+                                          </label>
+                                          <input
+                                            type="text"
+                                            className="input input-bordered w-full pointer-events-auto"
+                                            value={comp.config.message || ''}
+                                            onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
+                                            placeholder="Get 20% off your next purchase!"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                {comp.type === 'cta-button' && (
+                                  <div className="relative group">
+                                    {/* Drag Handle */}
+                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="4" cy="4" r="1.5"/>
+                                        <circle cx="4" cy="12" r="1.5"/>
+                                        <circle cx="12" cy="4" r="1.5"/>
+                                        <circle cx="12" cy="12" r="1.5"/>
+                                      </svg>
+                                    </div>
+                                    <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
+                                      <button
+                                        onClick={() => removeResultComponent(comp.id)}
+                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-auto"
+                                      >
+                                        ✕
+                                      </button>
+                                      <div className="space-y-4 pl-8">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-2xl">🔗</span>
+                                          <h4 className="font-semibold">Call-to-Action Button</h4>
+                                        </div>
+                                        <div>
+                                          <label className="label">
+                                            <span className="label-text">Button Text</span>
+                                          </label>
+                                          <input
+                                            type="text"
+                                            className="input input-bordered w-full pointer-events-auto"
+                                            value={comp.config.buttonText || ''}
+                                            onChange={(e) => updateComponentConfig(comp.id, 'buttonText', e.target.value)}
+                                            placeholder="Visit Website"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="label">
+                                            <span className="label-text">Button URL</span>
+                                          </label>
+                                          <input
+                                            type="url"
+                                            className="input input-bordered w-full pointer-events-auto"
+                                            value={comp.config.buttonUrl || ''}
+                                            onChange={(e) => updateComponentConfig(comp.id, 'buttonUrl', e.target.value)}
+                                            placeholder="https://example.com"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            )}
+
+                              {/* Drop indicator - shows below */}
+                              {dragOverComponentIndex === compIndex && draggedComponentIndex !== null && draggedComponentIndex < compIndex && (
+                                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg z-10 animate-pulse"></div>
+                              )}
+                            </div>
                           </div>
                         ))}
                     </div>
