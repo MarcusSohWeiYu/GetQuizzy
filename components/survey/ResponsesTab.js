@@ -242,22 +242,25 @@ const ResponsesTab = ({ surveyId, onResponsesLoad }) => {
                   <div className="space-y-4">
                     {response.answers.map((answer, index) => {
                       const question = getQuestionById(answer.questionId);
-                      if (!question) return null;
 
                       return (
                         <div
-                          key={answer.questionId}
+                          key={answer.questionId || index}
                           className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-5 border-l-4 border-purple-500"
                         >
                           <div className="flex gap-4">
                             <span className="badge badge-primary badge-lg shrink-0">Q{index + 1}</span>
                             <div className="flex-1 space-y-3">
                               <p className="font-semibold text-base-content">
-                                {question.title}
+                                {question ? question.title : (
+                                  <span className="text-base-content/50 italic">
+                                    [Question deleted or modified]
+                                  </span>
+                                )}
                               </p>
                               <div className="bg-base-200 rounded-lg p-4 border-2 border-purple-300/30">
                                 <p className="text-base-content font-medium">
-                                  ✨ {answer.answer}
+                                  ✨ {answer.answer || <span className="text-base-content/50 italic">No answer</span>}
                                 </p>
                               </div>
                             </div>

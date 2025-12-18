@@ -50,10 +50,11 @@ const AdminSurvey = ({ survey, questions }) => {
         status: survey.status || "active",
         createdAt: survey.createdAt || "",
         questions: questions.map(q => ({
-          id: q._id,
+          _id: q._id,
           title: q.title || "",
           questionType: q.questionType || "multiple-choice",
-          options: q.options || []
+          options: q.options || [],
+          required: q.required || false
         })),
         resultExperience: survey.resultExperience || {
           enabled: false,
@@ -222,7 +223,7 @@ const AdminSurvey = ({ survey, questions }) => {
     setSurveyData({
       ...surveyData,
       questions: surveyData.questions.map((q) =>
-        q.id === questionId ? { ...q, [field]: value } : q
+        q._id === questionId ? { ...q, [field]: value } : q
       ),
     });
   };
@@ -231,7 +232,7 @@ const AdminSurvey = ({ survey, questions }) => {
     setSurveyData({
       ...surveyData,
       questions: surveyData.questions.map((q) =>
-        q.id === questionId
+        q._id === questionId
           ? {
               ...q,
               options: q.options.map((opt, i) =>
@@ -248,7 +249,13 @@ const AdminSurvey = ({ survey, questions }) => {
       ...surveyData,
       questions: [
         ...surveyData.questions,
-        { id: Date.now(), title: "", questionType: "multiple-choice", options: [{ text: "", value: "" }] }
+        { 
+          _id: `temp-${Date.now()}`, // Temporary ID for new questions
+          title: "", 
+          questionType: "multiple-choice", 
+          options: [{ text: "", value: "" }], 
+          required: false 
+        }
       ]
     });
   };
@@ -256,7 +263,7 @@ const AdminSurvey = ({ survey, questions }) => {
   const removeQuestion = (questionId) => {
     setSurveyData({
       ...surveyData,
-      questions: surveyData.questions.filter((q) => q.id !== questionId)
+      questions: surveyData.questions.filter((q) => q._id !== questionId)
     });
   };
 
@@ -264,7 +271,7 @@ const AdminSurvey = ({ survey, questions }) => {
     setSurveyData({
       ...surveyData,
       questions: surveyData.questions.map((q) =>
-        q.id === questionId ? { ...q, options: [...q.options, { text: "", value: "" }] } : q
+        q._id === questionId ? { ...q, options: [...q.options, { text: "", value: "" }] } : q
       )
     });
   };
@@ -273,7 +280,7 @@ const AdminSurvey = ({ survey, questions }) => {
     setSurveyData({
       ...surveyData,
       questions: surveyData.questions.map((q) =>
-        q.id === questionId
+        q._id === questionId
           ? { ...q, options: q.options.filter((_, i) => i !== optionIndex) }
           : q
       )
@@ -655,7 +662,7 @@ const AdminSurvey = ({ survey, questions }) => {
               {/* Questions List */}
               <div className="space-y-6">
                 {surveyData.questions.map((q, index) => (
-                  <div key={q.id}>
+                  <div key={q._id}>
                     <div 
                       draggable={isEditMode}
                       onDragStart={(e) => handleDragStart(e, index)}
@@ -703,7 +710,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                 type="text"
                                 className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all pointer-events-auto"
                                 value={q.title}
-                                onChange={(e) => updateQuestion(q.id, 'title', e.target.value)}
+                                onChange={(e) => updateQuestion(q._id, 'title', e.target.value)}
                                 placeholder="Type your question here..."
                               />
                             ) : (
@@ -715,7 +722,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                 <select
                                   className="select select-bordered select-sm max-w-xs focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all pointer-events-auto"
                                   value={q.questionType}
-                                  onChange={(e) => updateQuestion(q.id, 'questionType', e.target.value)}
+                                  onChange={(e) => updateQuestion(q._id, 'questionType', e.target.value)}
                                 >
                                   <option value="multiple-choice">Multiple Choice</option>
                                   <option value="text">Text Answer</option>
@@ -734,7 +741,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                     <label className="text-sm font-semibold text-base-content/70">Answer Options</label>
                                     <button
                                       type="button"
-                                      onClick={() => addOption(q.id)}
+                                      onClick={() => addOption(q._id)}
                                       className="btn btn-xs btn-ghost text-purple-600 hover:bg-purple-100 pointer-events-auto"
                                     >
                                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -758,13 +765,13 @@ const AdminSurvey = ({ survey, questions }) => {
                                           type="text"
                                           className="input input-sm input-bordered flex-1 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all pointer-events-auto"
                                           value={option.text}
-                                          onChange={(e) => updateOption(q.id, optIndex, e.target.value)}
+                                          onChange={(e) => updateOption(q._id, optIndex, e.target.value)}
                                           placeholder={`Option ${optIndex + 1}`}
                                         />
                                         {q.options.length > 1 && (
                                           <button
                                             type="button"
-                                            onClick={() => removeOption(q.id, optIndex)}
+                                            onClick={() => removeOption(q._id, optIndex)}
                                             className="btn btn-xs btn-ghost text-error hover:bg-error/10 pointer-events-auto"
                                           >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -825,7 +832,7 @@ const AdminSurvey = ({ survey, questions }) => {
                           {isEditMode && surveyData.questions.length > 1 && (
                             <button
                               type="button"
-                              onClick={() => removeQuestion(q.id)}
+                              onClick={() => removeQuestion(q._id)}
                               className="btn btn-sm btn-ghost text-error hover:bg-error/10 pointer-events-auto"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">

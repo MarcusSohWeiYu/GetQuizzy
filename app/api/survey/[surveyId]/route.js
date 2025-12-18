@@ -47,20 +47,56 @@ export async function PUT(req, { params }) {
     
     await survey.save();
 
-    // Delete existing questions
-    await Question.deleteMany({ surveyId: surveyId });
+    // Get existing questions
+    const existingQuestions = await Question.find({ surveyId: surveyId });
+    const existingQuestionIds = existingQuestions.map(q => q._id.toString());
+    const incomingQuestionIds = questions
+      .filter(q => q._id || q.id)
+      .map(q => (q._id || q.id).toString());
 
-    // Create new questions with updated order
-    const questionPromises = questions.map((q, index) =>
-      Question.create({
-        title: q.title,
-        questionType: q.questionType,
-        options: q.options || [],
-        order: index,
-        surveyId: surveyId,
-        required: q.required || false
-      })
+    // Delete questions that are no longer in the incoming array
+    const questionsToDelete = existingQuestionIds.filter(
+      id => !incomingQuestionIds.includes(id)
     );
+    if (questionsToDelete.length > 0) {
+      await Question.deleteMany({ _id: { $in: questionsToDelete } });
+    }
+
+    // Update or create questions
+    const questionPromises = questions.map(async (q, index) => {
+      const questionId = q._id || q.id;
+      
+      // Check if questionId is a valid ObjectId (24 hex characters) and not a temporary ID
+      const isValidObjectId = questionId && 
+        typeof questionId === 'string' && 
+        !questionId.startsWith('temp-') && 
+        questionId.match(/^[0-9a-fA-F]{24}$/);
+      
+      if (isValidObjectId) {
+        // Update existing question
+        return await Question.findByIdAndUpdate(
+          questionId,
+          {
+            title: q.title,
+            questionType: q.questionType,
+            options: q.options || [],
+            order: index,
+            required: q.required || false
+          },
+          { new: true }
+        );
+      } else {
+        // Create new question
+        return await Question.create({
+          title: q.title,
+          questionType: q.questionType,
+          options: q.options || [],
+          order: index,
+          surveyId: surveyId,
+          required: q.required || false
+        });
+      }
+    });
 
     await Promise.all(questionPromises);
 
