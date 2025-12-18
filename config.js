@@ -5,7 +5,7 @@ const config = {
   appName: "GetQuizzy",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "Discover your unique personality through an engaging, AI-powered journey. Mindscape Mirror creates a personalized avatar that reflects your true self, combining playful questions with cutting-edge AI to reveal insights about who you really are. It's like looking into a magical mirror that shows your inner character!",
+    "Increase your survey engagement rate with AI-powered interactive quizzes. GetQuizzy helps you create personalized, engaging surveys that captivate your audience and boost completion rates, turning ordinary forms into memorable experiences that people actually want to finish.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   domainName: "getquizzy.online",
   crisp: {
