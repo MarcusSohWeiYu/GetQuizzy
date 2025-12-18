@@ -953,9 +953,6 @@ const AdminSurvey = ({ survey, questions }) => {
                                 return (
                                   <div key={comp.id}>
                                     <div
-                                      draggable
-                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
-                                      onDragEnd={handleComponentDragEnd}
                                       onDragOver={handleComponentDragOver}
                                       onDragEnter={(e) => handleComponentDragEnter(e, compIndex)}
                                       onDragLeave={handleComponentDragLeave}
@@ -976,7 +973,13 @@ const AdminSurvey = ({ survey, questions }) => {
                                       }`}>
                                         <div className="flex items-center gap-3">
                                           {/* Drag Handle */}
-                                          <div className="cursor-move text-base-content/40 hover:text-base-content/70 transition-colors pointer-events-auto flex-shrink-0" title="Drag to reorder">
+                                          <div 
+                                            draggable="true"
+                                            onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                            onDragEnd={handleComponentDragEnd}
+                                            className="cursor-move text-base-content/40 hover:text-base-content/70 transition-colors flex-shrink-0" 
+                                            title="Drag to reorder"
+                                          >
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                               <circle cx="4" cy="4" r="1.5"/>
                                               <circle cx="4" cy="12" r="1.5"/>
@@ -991,7 +994,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                           </div>
                                           <button
                                             onClick={() => removeResultComponent(comp.id)}
-                                            className="btn btn-xs btn-ghost text-error hover:bg-error/10 pointer-events-auto"
+                                            className="btn btn-xs btn-ghost text-error hover:bg-error/10"
                                           >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                                               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1100,9 +1103,6 @@ const AdminSurvey = ({ survey, questions }) => {
                         .map((comp, compIndex) => (
                           <div key={comp.id}>
                             <div
-                              draggable
-                              onDragStart={(e) => handleComponentDragStart(e, compIndex)}
-                              onDragEnd={handleComponentDragEnd}
                               onDragOver={handleComponentDragOver}
                               onDragEnter={(e) => handleComponentDragEnter(e, compIndex)}
                               onDragLeave={handleComponentDragLeave}
@@ -1124,7 +1124,13 @@ const AdminSurvey = ({ survey, questions }) => {
                                 {comp.type === 'ai-avatar' && (
                                   <div className="relative group">
                                     {/* Drag Handle */}
-                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                    <div 
+                                      draggable="true"
+                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                      onDragEnd={handleComponentDragEnd}
+                                      className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg" 
+                                      title="Drag to reorder"
+                                    >
                                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="4" cy="4" r="1.5"/>
                                         <circle cx="4" cy="12" r="1.5"/>
@@ -1132,19 +1138,23 @@ const AdminSurvey = ({ survey, questions }) => {
                                         <circle cx="12" cy="12" r="1.5"/>
                                       </svg>
                                     </div>
-                                    <div className="pointer-events-none">
-                                      <AIAvatarComponent
-                                        comp={comp}
-                                        updateComponentConfig={updateComponentConfig}
-                                        removeComponent={removeResultComponent}
-                                      />
-                                    </div>
+                                    <AIAvatarComponent
+                                      comp={comp}
+                                      updateComponentConfig={updateComponentConfig}
+                                      removeComponent={removeResultComponent}
+                                    />
                                   </div>
                                 )}
                                 {comp.type === 'ai-custom' && (
                                   <div className="relative group">
                                     {/* Drag Handle */}
-                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                    <div 
+                                      draggable="true"
+                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                      onDragEnd={handleComponentDragEnd}
+                                      className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg" 
+                                      title="Drag to reorder"
+                                    >
                                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="4" cy="4" r="1.5"/>
                                         <circle cx="4" cy="12" r="1.5"/>
@@ -1152,19 +1162,23 @@ const AdminSurvey = ({ survey, questions }) => {
                                         <circle cx="12" cy="12" r="1.5"/>
                                       </svg>
                                     </div>
-                                    <div className="pointer-events-none">
-                                      <AICustomComponent
-                                        comp={comp}
-                                        updateComponentConfig={updateComponentConfig}
-                                        removeComponent={removeResultComponent}
-                                      />
-                                    </div>
+                                    <AICustomComponent
+                                      comp={comp}
+                                      updateComponentConfig={updateComponentConfig}
+                                      removeComponent={removeResultComponent}
+                                    />
                                   </div>
                                 )}
                                 {comp.type === 'custom-message' && (
                                   <div className="relative group">
                                     {/* Drag Handle */}
-                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                    <div 
+                                      draggable="true"
+                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                      onDragEnd={handleComponentDragEnd}
+                                      className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg" 
+                                      title="Drag to reorder"
+                                    >
                                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="4" cy="4" r="1.5"/>
                                         <circle cx="4" cy="12" r="1.5"/>
@@ -1175,7 +1189,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                     <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
                                       <button
                                         onClick={() => removeResultComponent(comp.id)}
-                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-auto"
+                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
                                       >
                                         ✕
                                       </button>
@@ -1185,7 +1199,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                           <h4 className="font-semibold">Custom Message</h4>
                                         </div>
                                         <textarea
-                                          className="textarea textarea-bordered w-full min-h-[100px] pointer-events-auto"
+                                          className="textarea textarea-bordered w-full min-h-[100px]"
                                           value={comp.config.message || ''}
                                           onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
                                           placeholder="Enter your custom message..."
@@ -1197,7 +1211,13 @@ const AdminSurvey = ({ survey, questions }) => {
                                 {comp.type === 'discount-code' && (
                                   <div className="relative group">
                                     {/* Drag Handle */}
-                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                    <div 
+                                      draggable="true"
+                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                      onDragEnd={handleComponentDragEnd}
+                                      className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg" 
+                                      title="Drag to reorder"
+                                    >
                                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="4" cy="4" r="1.5"/>
                                         <circle cx="4" cy="12" r="1.5"/>
@@ -1208,7 +1228,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                     <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
                                       <button
                                         onClick={() => removeResultComponent(comp.id)}
-                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-auto"
+                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
                                       >
                                         ✕
                                       </button>
@@ -1223,7 +1243,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                           </label>
                                           <input
                                             type="text"
-                                            className="input input-bordered w-full pointer-events-auto"
+                                            className="input input-bordered w-full"
                                             value={comp.config.code || ''}
                                             onChange={(e) => updateComponentConfig(comp.id, 'code', e.target.value)}
                                             placeholder="SURVEY20"
@@ -1235,7 +1255,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                           </label>
                                           <input
                                             type="text"
-                                            className="input input-bordered w-full pointer-events-auto"
+                                            className="input input-bordered w-full"
                                             value={comp.config.message || ''}
                                             onChange={(e) => updateComponentConfig(comp.id, 'message', e.target.value)}
                                             placeholder="Get 20% off your next purchase!"
@@ -1248,7 +1268,13 @@ const AdminSurvey = ({ survey, questions }) => {
                                 {comp.type === 'cta-button' && (
                                   <div className="relative group">
                                     {/* Drag Handle */}
-                                    <div className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg pointer-events-auto" title="Drag to reorder">
+                                    <div 
+                                      draggable="true"
+                                      onDragStart={(e) => handleComponentDragStart(e, compIndex)}
+                                      onDragEnd={handleComponentDragEnd}
+                                      className="absolute left-3 top-3 cursor-move text-base-content/40 hover:text-base-content/70 transition-colors z-20 bg-base-200 rounded-lg p-2 shadow-lg" 
+                                      title="Drag to reorder"
+                                    >
                                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="4" cy="4" r="1.5"/>
                                         <circle cx="4" cy="12" r="1.5"/>
@@ -1259,7 +1285,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                     <div className="bg-base-200 rounded-2xl p-6 border-2 border-base-300 hover:border-primary/40 transition-all">
                                       <button
                                         onClick={() => removeResultComponent(comp.id)}
-                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-auto"
+                                        className="absolute top-3 right-3 btn btn-xs btn-circle bg-red-500/80 hover:bg-red-500 border-0 text-white opacity-0 group-hover:opacity-100 transition-all z-10"
                                       >
                                         ✕
                                       </button>
@@ -1274,7 +1300,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                           </label>
                                           <input
                                             type="text"
-                                            className="input input-bordered w-full pointer-events-auto"
+                                            className="input input-bordered w-full"
                                             value={comp.config.buttonText || ''}
                                             onChange={(e) => updateComponentConfig(comp.id, 'buttonText', e.target.value)}
                                             placeholder="Visit Website"
@@ -1286,7 +1312,7 @@ const AdminSurvey = ({ survey, questions }) => {
                                           </label>
                                           <input
                                             type="url"
-                                            className="input input-bordered w-full pointer-events-auto"
+                                            className="input input-bordered w-full"
                                             value={comp.config.buttonUrl || ''}
                                             onChange={(e) => updateComponentConfig(comp.id, 'buttonUrl', e.target.value)}
                                             placeholder="https://example.com"

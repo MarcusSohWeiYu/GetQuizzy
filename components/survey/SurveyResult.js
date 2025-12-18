@@ -5,7 +5,7 @@ import axios from "axios";
 import { ImageGenerationPrompt } from "@/libs/helpers/prompt";
 
 const SurveyResult = ({ survey, questions, answers }) => {
-  const [loadingComponents, setLoadingComponents] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [componentData, setComponentData] = useState({});
   const [errors, setErrors] = useState({});
 
@@ -17,10 +17,23 @@ const SurveyResult = ({ survey, questions, answers }) => {
   useEffect(() => {
     // Process each component that needs AI generation
     const processComponents = async () => {
-      for (const component of sortedComponents) {
-        if (component.type === 'ai-avatar' || component.type === 'ai-custom') {
-          await generateComponentData(component);
+      // Check if there are any AI components that need processing
+      const hasAIComponents = sortedComponents.some(
+        comp => comp.type === 'ai-avatar' || comp.type === 'ai-custom'
+      );
+
+      if (!hasAIComponents) return;
+
+      setIsLoading(true);
+      
+      try {
+        for (const component of sortedComponents) {
+          if (component.type === 'ai-avatar' || component.type === 'ai-custom') {
+            await generateComponentData(component);
+          }
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -33,7 +46,6 @@ const SurveyResult = ({ survey, questions, answers }) => {
   const generateComponentData = async (component) => {
     const componentId = component.id;
     
-    setLoadingComponents(prev => ({ ...prev, [componentId]: true }));
     setErrors(prev => ({ ...prev, [componentId]: null }));
 
     try {
@@ -115,26 +127,18 @@ const SurveyResult = ({ survey, questions, answers }) => {
         ...prev,
         [componentId]: error.response?.data?.error || error.message || 'Failed to generate content'
       }));
-    } finally {
-      setLoadingComponents(prev => ({ ...prev, [componentId]: false }));
     }
   };
 
   // Render AI Avatar Component
   const renderAIAvatar = (component) => {
     const componentId = component.id;
-    const isLoading = loadingComponents[componentId];
     const data = componentData[componentId];
     const error = errors[componentId];
 
     return (
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-purple-500/20">
-        {isLoading ? (
-          <div className="flex flex-col items-center gap-6">
-            <div className="loading loading-spinner loading-lg text-purple-500"></div>
-            <p className="text-white/60">Generating your unique avatar...</p>
-          </div>
-        ) : error ? (
+        {error ? (
           <div className="text-center text-red-400">
             <p>⚠️ {error}</p>
           </div>
@@ -156,12 +160,7 @@ const SurveyResult = ({ survey, questions, answers }) => {
               {data.avatarName || 'Your Avatar'}
             </h3>
           </div>
-        ) : (
-          <div className="flex flex-col items-center gap-6">
-            <div className="loading loading-spinner loading-lg text-purple-500"></div>
-            <p className="text-white/60">Preparing your avatar...</p>
-          </div>
-        )}
+        ) : null}
       </div>
     );
   };
@@ -169,7 +168,6 @@ const SurveyResult = ({ survey, questions, answers }) => {
   // Render AI Custom Component
   const renderAICustom = (component) => {
     const componentId = component.id;
-    const isLoading = loadingComponents[componentId];
     const data = componentData[componentId];
     const error = errors[componentId];
     const title = component.config?.title || 'Your Personalized Insights';
@@ -193,12 +191,7 @@ const SurveyResult = ({ survey, questions, answers }) => {
 
     return (
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-purple-500/20">
-        {isLoading ? (
-          <div className="flex flex-col items-center gap-6">
-            <div className="loading loading-spinner loading-lg text-purple-500"></div>
-            <p className="text-white/60">Generating personalized insights...</p>
-          </div>
-        ) : error ? (
+        {error ? (
           <div className="text-center text-red-400">
             <p>⚠️ {error}</p>
           </div>
@@ -211,7 +204,7 @@ const SurveyResult = ({ survey, questions, answers }) => {
             </div>
             
             {/* Display AI-generated content */}
-            {aiGeneratedContent ? (
+            {aiGeneratedContent && (
               <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
                 <div className="prose prose-invert max-w-none">
                   <p className="text-white/90 text-base leading-relaxed whitespace-pre-wrap">
@@ -219,31 +212,9 @@ const SurveyResult = ({ survey, questions, answers }) => {
                   </p>
                 </div>
               </div>
-            ) : (
-              <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
-                <p className="text-white/60 text-sm text-center">
-                  Generating your personalized insights...
-                </p>
-              </div>
-            )}
-            
-            {/* Show sections if defined */}
-            {data.sections && data.sections.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                {data.sections.map((section, idx) => (
-                  <div key={idx} className="bg-purple-500/20 px-3 py-1 rounded-full text-purple-300 text-xs font-medium">
-                    {section}
-                  </div>
-                ))}
-              </div>
             )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center gap-6">
-            <div className="loading loading-spinner loading-lg text-purple-500"></div>
-            <p className="text-white/60">Preparing your insights...</p>
-          </div>
-        )}
+        ) : null}
       </div>
     );
   };
@@ -305,6 +276,30 @@ const SurveyResult = ({ survey, questions, answers }) => {
         <p className="text-xl md:text-2xl text-gray-300 mb-8">
           Your response has been recorded successfully.
         </p>
+      </div>
+    );
+  }
+
+  // Show single loading spinner while generating all AI content
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        {/* Result Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            Your Results
+          </h2>
+          <p className="text-white/50 text-sm">Personalized just for you</p>
+        </div>
+
+        {/* Single Loading Spinner */}
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-16 border border-purple-500/20">
+          <div className="flex flex-col items-center gap-6">
+            <div className="loading loading-spinner loading-lg text-purple-500"></div>
+            <p className="text-white/80 text-lg font-medium">Generating your personalized results...</p>
+            <p className="text-white/50 text-sm">This may take a moment</p>
+          </div>
+        </div>
       </div>
     );
   }
