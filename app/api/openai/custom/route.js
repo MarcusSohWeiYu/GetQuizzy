@@ -18,15 +18,15 @@ export async function POST(req) {
 
     // Use the standard chat completions API
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4.1-mini-2025-04-14",
       messages: [
         {
           role: "user",
           content: content,
         },
       ],
-      temperature: 0.7,
-      max_tokens: 500,
+      temperature: 1,
+      max_completion_tokens: 500,
     });
 
     // Extract the assistant's message
