@@ -62,7 +62,7 @@ const SurveyResult = ({ survey, questions, answers }) => {
         const imageUrl = avatarResponse.data.data?.[0]?.url;
         
         // Call custom AI API to generate a creative name for the avatar
-        const namePrompt = `Based on this avatar description: "${prompt}". Generate a creative and catchy 2-3 word name for this character. Only return the name, nothing else. Examples: "Glamorous Tiger", "Wise Owl", "Cheerful Sunflower". Keep it short and memorable.`;
+        const namePrompt = `Based on this avatar description: "${prompt}". Follow the instructions and generate a creative and catchy 2-3 word name for this character. Only return the name, nothing else. Examples: "Glamorous Tiger", "Wise Owl", "Cheerful Sunflower". Keep it short and memorable.`;
         const nameResponse = await axios.post('/api/openai/custom', { 
           content: namePrompt 
         });
