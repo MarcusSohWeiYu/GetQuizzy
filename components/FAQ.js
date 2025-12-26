@@ -7,65 +7,57 @@ import { useRef, useState, useEffect } from "react";
 
 const faqList = [
   {
-    question: "Is it really free? What's the catch?",
+    question: "What reward components can I add to my surveys?",
     answer: (
       <div className="space-y-2 leading-relaxed">
         <p>
-          Yes, 100% free! Create unlimited surveys with unlimited questions and unlimited responses. No credit card required, no hidden fees, no &ldquo;free trial&rdquo; that converts to paid.
+          You can choose from 5 powerful reward components: <strong>Discount Codes</strong> (perfect for e-commerce), <strong>Custom CTA Buttons</strong> (drive traffic anywhere), <strong>AI Avatars</strong> (personality results), <strong>Personalized Messages</strong> (product recommendations), and <strong>Custom AI Content</strong>.
         </p>
         <p>
-          We keep it free by showing small ads on survey pages. You don&apos;t pay anything—we monetize through advertising so you can focus on getting responses.
+          The best part? You can combine multiple components in a single survey! For example, show a personalized skincare routine + discount code + CTA button to your store.
         </p>
       </div>
     ),
   },
   {
-    question: "How does the AI avatar generation work?",
+    question: "How do discount codes work?",
     answer: (
       <div className="space-y-2 leading-relaxed">
         <p>
-          When someone completes your survey, our AI analyzes their responses and generates a unique character avatar that matches their personality profile. It uses DALL-E 3 for stunning, creative images.
+          After completing your survey, customers instantly receive a discount code they can use at checkout. You set the code, discount amount, validity period, and terms.
         </p>
         <p>
-          Each avatar is completely unique and personalized. Users get excited to finish the survey because they want to see &ldquo;their character&rdquo;—this boosts completion rates by 70%+.
+          This creates a powerful incentive to finish the survey and encourages repeat purchases. Perfect for fashion stores, restaurants, beauty brands, and any business that wants to reward customer feedback with tangible value.
         </p>
       </div>
     ),
   },
   {
-    question: "Can the AI really write my survey questions?",
+    question: "Can I drive traffic to my website or social media?",
     answer: (
       <p>
-        Absolutely! Just tell us what you want to learn (e.g., &ldquo;customer satisfaction for my coffee shop&rdquo; or &ldquo;personality quiz about travel styles&rdquo;), and our AI will generate professional, relevant questions in seconds. You can edit them or use them as-is. It&apos;s like having a survey expert on demand.
+        Absolutely! Add custom CTA buttons at the end of your survey that link anywhere: your online store, product pages, Instagram, Facebook, booking systems, or any URL. Convert survey respondents into customers, followers, or subscribers with one strategic click.
       </p>
     ),
   },
   {
-    question: "How does the viral sharing work?",
-    answer: (
-      <p>
-        After completing your survey, respondents get a &ldquo;Share Your Avatar&rdquo; button. One click lets them post their AI character to social media with a link back to your survey. Their friends see the cool avatar, get curious, and take your survey too. It&apos;s exponential growth on autopilot—no ads needed.
-      </p>
-    ),
-  },
-  {
-    question: "What kind of insights will I get?",
+    question: "What are personalized AI messages?",
     answer: (
       <div className="space-y-2 leading-relaxed">
         <p>
-          Our AI automatically analyzes all responses and generates insights like: most common answers, trends over time, audience segments, drop-off points, and key takeaways.
+          Based on survey responses, you can show custom recommendations, advice, or content. Examples: personalized skincare routines based on skin type, product recommendations based on preferences, or wellness plans based on goals.
         </p>
         <p>
-          No need to export to Excel or manually crunch numbers. You get smart summaries, visualizations, and actionable recommendations instantly.
+          This creates a valuable, educational experience that builds trust and positions your brand as helpful—not just collecting data.
         </p>
       </div>
     ),
   },
   {
-    question: "What types of surveys can I create?",
+    question: "Is this only for e-commerce businesses?",
     answer: (
       <p>
-        Anything! Personality quizzes, customer feedback forms, market research, employee engagement surveys, event registrations, trivia quizzes, &ldquo;Which character are you?&rdquo; quizzes, product research—if it needs questions and answers, you can build it here.
+        Not at all! Our reward components work for any business: e-commerce stores (discount codes), restaurants (loyalty rewards + social CTAs), SaaS companies (personality quizzes + trial CTAs), beauty brands (personalized routines + product links), service businesses (booking CTAs), and more. If you want higher survey completion rates, we have a solution for you.
       </p>
     ),
   },
@@ -73,16 +65,26 @@ const faqList = [
     question: "Do I need any technical skills?",
     answer: (
       <p>
-        Nope! Our builder is designed for anyone. Just type your questions (or let AI generate them), choose answer types, and publish. No coding, no design skills, no complicated setup. If you can use Google Forms, you can use this—but way more powerful and engaging.
+        Nope! Our builder is super simple. Create your questions, choose which reward components to show at the end, customize the content and colors, then publish. No coding, no design skills needed. If you can create a Google Form, you can create engaging reward-based surveys here—but 10x more powerful.
       </p>
     ),
   },
   {
-    question: "Can I customize how the survey looks?",
+    question: "What types of surveys can I create?",
     answer: (
       <p>
-        Yes! You can customize colors, add your logo, write custom result descriptions, and personalize the AI avatar prompts. Make it match your brand while keeping the core engagement features that drive completions.
+        Anything! Customer feedback surveys, product research, personality quizzes, skincare finders, style quizzes, market research, post-purchase surveys, event feedback, restaurant reviews, employee engagement—any survey where you want high completion rates and conversion opportunities.
       </p>
+    ),
+  },
+  {
+    question: "How much does it cost?",
+    answer: (
+      <div className="space-y-2 leading-relaxed">
+        <p>
+          Guess what... its free of charge!!
+        </p>
+      </div>
     ),
   },
 ];
@@ -182,7 +184,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </p>
           <p className="text-lg opacity-70">
-            Everything you need to know about creating engaging surveys with AI character rewards.
+            Everything you need to know about boosting survey completion rates with reward components.
           </p>
         </div>
 

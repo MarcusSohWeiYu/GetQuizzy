@@ -12,12 +12,84 @@ import Image from "next/image";
 // - alt: The alt text of the image (if type is 'image')
 const features = [
   {
-    title: "AI Avatar Rewards",
+    title: "Mix & Match Reward Components",
     description:
-      "Every completed survey unlocks a unique AI-generated character avatar. This reward increases completion rates by 70%+ because users are excited to see their personalized result. Turn boring surveys into memorable experiences.",
+      "Choose from 5 powerful components to reward survey completion: AI-generated avatars, discount codes, custom CTA buttons, personalized messages, or AI-generated content. Combine multiple components in one survey to maximize impact. Perfect for e-commerce, SaaS, restaurants, and more.",
+    type: "image",
+    path: "https://images.unsplash.com/photo-1557838923-2985c318be48?w=800&auto=format&fit=crop&q=80",
+    alt: "Customizable survey components",
+    svg: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75l2.25-1.313M12 21.75V19.5m0 2.25l-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "Discount Codes",
+    description:
+      "Reward customers with instant discount codes after completing your survey. Perfect for e-commerce and retail businesses to boost repeat purchases. Customize the discount amount, validity period, and terms. Increase survey completion rates by offering tangible rewards.",
+    type: "image",
+    path: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800&auto=format&fit=crop&q=80",
+    alt: "Discount code rewards",
+    svg: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "Custom CTA Buttons",
+    description:
+      "Drive traffic exactly where you want after survey completion. Add custom call-to-action buttons linking to your store, product pages, social media, or booking systems. Perfect for converting survey respondents into customers, followers, or subscribers with one click.",
+    type: "image",
+    path: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
+    alt: "Custom CTA buttons",
+    svg: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "AI Avatar & Personality Results",
+    description:
+      "Generate unique AI-powered avatars and personality profiles based on survey responses. Users get a personalized character with custom traits, descriptions, and visual representations. Creates shareable, memorable experiences that boost engagement by 70%+ and drive organic social sharing.",
     type: "image",
     path: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80",
-    alt: "AI generated character",
+    alt: "AI generated avatars",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -36,12 +108,12 @@ const features = [
     ),
   },
   {
-    title: "AI Question Generator",
+    title: "Personalized AI Messages",
     description:
-      "Stuck on what to ask? Our AI automatically generates relevant survey questions based on your topic. Create professional surveys 10x faster. Just describe what you want to learn, and AI writes the questions for you.",
+      "Create custom AI-generated messages tailored to each respondent's answers. Perfect for product recommendations, skincare routines, wellness plans, or personalized advice. Build deeper connections with your audience by showing them content that's relevant to their specific needs and preferences.",
     type: "image",
-    path: "https://images.unsplash.com/photo-1677756119517-756a188d2d94?w=800&auto=format&fit=crop&q=80",
-    alt: "AI generating questions",
+    path: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+    alt: "Personalized messages",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -54,79 +126,7 @@ const features = [
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Free Unlimited Surveys",
-    description:
-      "Create as many surveys as you want, with unlimited questions and unlimited responses. No hidden fees, no credit card required. Build personality quizzes, feedback forms, market research surveys—all completely free.",
-    type: "image",
-    path: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
-    alt: "Unlimited survey creation",
-    svg: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-6 h-6"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Built-in Viral Sharing",
-    description:
-      "Turn respondents into promoters. After completing the survey, users can instantly share their AI avatar on social media with one click. Each share drives organic traffic back to your survey—exponential growth on autopilot.",
-    type: "image",
-    path: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop&q=80",
-    alt: "Social media sharing",
-    svg: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-6 h-6"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Auto-Generated Insights (Coming Soon)",
-    description:
-      "AI analyzes all responses and automatically generates insights about your audience. See trends, patterns, and key takeaways without manually crunching data. Get smart summaries, visualizations, and actionable recommendations instantly.",
-    type: "image",
-    path: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
-    alt: "Analytics dashboard",
-    svg: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-6 h-6"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+          d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
         />
       </svg>
     ),
@@ -266,13 +266,13 @@ const FeaturesAccordion = () => {
       
       <div className="px-8 relative z-10">
         <h2 className="scroll-animate font-extrabold text-4xl lg:text-6xl tracking-tight mb-4 md:mb-6 leading-tight">
-          Everything you need to create<br />
+          Reward Every Response<br />
           <span className="bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text animate-pulse">
-            Engaging Surveys
+            Boost Completion Rates
           </span>
         </h2>
         <p className="scroll-animate text-lg md:text-xl opacity-70 mb-12 md:mb-24 max-w-2xl">
-          Powerful features designed to boost engagement and collect better data
+          Choose from multiple reward components and combine them to create surveys people actually want to finish
         </p>
         <div className="flex flex-col md:flex-row gap-12 md:gap-24">
           <div className="grid grid-cols-1 items-stretch gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-20">

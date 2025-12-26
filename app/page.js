@@ -9,6 +9,8 @@ import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import TestimonialsGrid from "@/components/TestimonialsGrid";
 import WithWithout from '@/components/WithWithout';
+import FeaturesGrid from '@/components/FeaturesGrid';
+import FeaturesListicle from '@/components/FeaturesListicle';
 
 export default function Home() {
   return (
@@ -36,7 +38,7 @@ export default function Home() {
         </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="space-y-20 sm:space-y-24 md:space-y-32 pb-20 md:pb-32">
-            <FeaturesAccordion />
+            <FeaturesListicle />
             <WithWithout />
             <FAQ />
             <CTA />
