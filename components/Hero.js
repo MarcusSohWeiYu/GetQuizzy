@@ -53,46 +53,53 @@ const Hero = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
           </span>
-          AI-Powered Personality Quizzes
+          Reward-Based Survey Builder
         </div>
 
         <h1 className="scroll-animate font-extrabold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl tracking-tight leading-tight text-white">
-          Boring Surveys?{" "}
+          Create Surveys{" "}
           <br />
           <span className="relative inline-block mt-2">
             <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 text-transparent bg-clip-text">
-              Add AI Magic
+              People Love Finishing
             </span>
-            <svg className="absolute -right-6 lg:-right-8 -top-4 lg:-top-6 w-8 h-8 lg:w-12 lg:h-12 text-yellow-400 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
           </span>
         </h1>
 
         <p className="scroll-animate text-lg lg:text-xl xl:text-2xl text-gray-300 leading-relaxed font-medium">
-          Turn boring surveys into{" "}
+          Boost completion rates with{" "}
           <span className="relative inline-block">
             <span className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-lg"></span>
-            <span className="relative text-white font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">experiences people actually want</span>
+            <span className="relative text-white font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">rewarding endings</span>
           </span>{" "}
-          to complete. Every quiz ends with a custom AI character reveal!
+          — AI avatars, discount codes, custom messages & more. Mix and match components to create unforgettable experiences.
         </p>
 
-        {/* Stats */}
-        <div className="scroll-animate flex gap-6 lg:gap-8">
-          <div className="text-center lg:text-left">
-            <div className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">10x</div>
-            <div className="text-xs lg:text-sm text-gray-400">Engagement</div>
+        {/* Features List */}
+        <div className="scroll-animate flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-4 py-2">
+            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-white text-sm font-medium">AI Avatars</span>
           </div>
-          <div className="w-px bg-gray-700"></div>
-          <div className="text-center lg:text-left">
-            <div className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-400 to-orange-400 text-transparent bg-clip-text">5min</div>
-            <div className="text-xs lg:text-sm text-gray-400">To Create</div>
+          <div className="flex items-center gap-2 bg-pink-500/10 border border-pink-500/30 rounded-full px-4 py-2">
+            <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-white text-sm font-medium">Discount Codes</span>
           </div>
-          <div className="w-px bg-gray-700"></div>
-          <div className="text-center lg:text-left">
-            <div className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-orange-400 to-purple-400 text-transparent bg-clip-text">∞</div>
-            <div className="text-xs lg:text-sm text-gray-400">Possibilities</div>
+          <div className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-2">
+            <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-white text-sm font-medium">Custom CTAs</span>
+          </div>
+          <div className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-4 py-2">
+            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-white text-sm font-medium">AI Messages</span>
           </div>
         </div>
 
@@ -111,17 +118,10 @@ const Hero = () => {
       </div>
 
       <div className="w-full lg:flex-1 scroll-animate relative max-w-2xl">
-        {/* Mobile arrow pointing down */}
-        <div className="lg:hidden flex justify-center mb-6 animate-bounce">
-          <span className="text-purple-400 font-bold text-base bg-purple-500/10 px-6 py-2 rounded-full border border-purple-500/30">
-            Try it now! 👇
-          </span>
-        </div>
-
-        {/* Desktop arrow pointing to preview */}
-        <div className="hidden lg:flex justify-center mb-6 animate-bounce">
-          <span className="text-purple-400 font-bold text-base bg-purple-500/10 px-6 py-2 rounded-full border border-purple-500/30">
-            Try it now! 👇
+        {/* Try it callout */}
+        <div className="flex justify-center mb-6 animate-bounce">
+          <span className="text-purple-400 font-bold text-sm md:text-base bg-purple-500/10 px-4 md:px-6 py-2 rounded-full border border-purple-500/30">
+            👇 Try different examples
           </span>
         </div>
         
