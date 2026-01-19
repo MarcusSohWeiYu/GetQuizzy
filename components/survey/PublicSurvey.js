@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GeistSans, GeistMono } from 'geist/font';
 import axios from "axios";
@@ -75,6 +75,28 @@ export default function PublicSurvey({ survey, questions }) {
   const [showResults, setShowResults] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [adRotationIndex, setAdRotationIndex] = useState(0);
+  
+  const leftAds = adSpaces.filter(ad => ad.position === "left");
+  const rightAds = adSpaces.filter(ad => ad.position === "right");
+  
+  // Auto-rotate ads every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAdRotationIndex(prev => prev + 1);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Get 5 ads to display, cycling through all ads
+  const getDisplayAds = (ads) => {
+    const displayAds = [];
+    for (let i = 0; i < 5; i++) {
+      const index = (adRotationIndex + i) % ads.length;
+      displayAds.push(ads[index]);
+    }
+    return displayAds;
+  };
 
   const handleAnswer = (answer) => {
     const newAnswers = { ...answers, [currentQuestion]: answer };
@@ -194,113 +216,155 @@ export default function PublicSurvey({ survey, questions }) {
         </div>
       </nav>
 
-      {/* Main Container with Ad Spaces - Added top padding for fixed nav */}
-      <div className="flex flex-col lg:flex-row min-h-screen pt-16">
-        
-        {/* Left Ad Space - Fixed to left edge on desktop */}
-        <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 p-6 fixed left-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
-          {/* Ad Disclaimer */}
-          <div className="text-center mb-2">
-            <p className="text-xs text-purple-200/60 leading-relaxed">
-              💜 We keep surveys free through ads
-            </p>
-          </div>
-
-          {adSpaces.filter(ad => ad.position === "left").map((ad) => (
+      {/* Mobile Horizontal Ad Carousel - Auto-scrolling Conveyor Belt */}
+      <div className="lg:hidden fixed top-16 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800 z-40 overflow-hidden">
+        <div className="flex animate-scroll-left">
+          {/* Duplicate ads twice for seamless infinite scroll */}
+          {[...adSpaces, ...adSpaces].map((ad, index) => (
             ad.isEmpty ? (
               // Empty Ad Slot
-              <a 
-                key={ad.id}
+              <a
+                key={`mobile-${ad.id}-${index}`}
                 href="https://getquizzy.online/advertise"
-                className="block bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-3xl p-6 hover:border-purple-500 hover:bg-gray-800/70 transition-all duration-300 text-center group"
+                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 m-2"
               >
-                <div className="flex flex-col items-center text-center gap-4 py-4">
-                  <div className="w-16 h-16 flex items-center justify-center bg-gray-700/50 rounded-2xl group-hover:bg-purple-500/20 transition-colors">
-                    <span className="text-3xl">📢</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base mb-2 text-gray-400 group-hover:text-purple-300">
-                      Your Ad Here
-                    </h3>
-                    <p className="text-sm text-gray-500 group-hover:text-gray-400 leading-relaxed">
-                      Reach thousands of engaged users
-                    </p>
-                    <div className="mt-3 text-xs text-purple-400 font-semibold">
-                      Click to advertise →
-                    </div>
-                  </div>
+                <div className="w-7 h-7 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors shrink-0">
+                  <span className="text-sm">📢</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-[10px] text-gray-400 group-hover:text-purple-300 truncate">
+                    Your Ad
+                  </h3>
+                  <p className="text-[8px] text-purple-400 font-semibold">
+                    Advertise
+                  </p>
                 </div>
               </a>
             ) : (
               // Regular Ad
-              <a 
-                key={ad.id}
+              <a
+                key={`mobile-${ad.id}-${index}`}
                 href="#"
-                className={`block bg-gradient-to-br ${ad.bgColor} rounded-3xl p-6 shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 text-white border border-white/10 relative group`}
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2`}
               >
-                <div className="absolute top-2 right-2 text-[10px] text-white/40 bg-black/20 px-2 py-0.5 rounded-full">
+                <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                   Ad
                 </div>
-                <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-sm">
-                    <span className="text-4xl">{ad.icon}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base mb-2">{ad.name}</h3>
-                    <p className="text-sm opacity-90 leading-relaxed">{ad.tagline}</p>
-                  </div>
+                <div className="w-7 h-7 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm shrink-0">
+                  <span className="text-sm">{ad.icon}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-[10px] mb-0.5 leading-tight truncate">{ad.name}</h3>
+                  <p className="text-[8px] opacity-80 leading-tight truncate">{ad.tagline}</p>
                 </div>
               </a>
             )
           ))}
+        </div>
+      </div>
+
+      {/* Main Container with Ad Spaces - Added top padding for fixed nav and mobile ads */}
+      <div className="flex flex-col lg:flex-row min-h-screen pt-[4.5rem] lg:pt-16">
+        
+        {/* Left Ad Space - Fixed to left edge on desktop */}
+        <aside className="hidden lg:flex flex-col gap-2 w-44 shrink-0 p-2 fixed left-0 top-16 h-[calc(100vh-4rem)] justify-between">
+          
+
+          {/* Display 5 rotating ads */}
+          <div className="flex-1 flex flex-col gap-2 justify-center">
+            {getDisplayAds(leftAds).map((ad, index) => (
+              ad.isEmpty ? (
+                // Empty Ad Slot
+                <a 
+                  key={`${ad.id}-${index}`}
+                  href="https://getquizzy.online/advertise"
+                  className="block bg-gray-800/50 border border-dashed border-gray-700 rounded-lg p-2 hover:border-purple-500/50 hover:bg-gray-800/70 transition-all duration-300 text-center group h-[calc((100vh-8rem)/5-0.5rem)]"
+                >
+                  <div className="flex flex-col items-center justify-center gap-1 h-full">
+                    <div className="w-8 h-8 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                      <span className="text-lg">📢</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[10px] text-gray-400 group-hover:text-purple-300">
+                        Ad Space
+                      </h3>
+                      <p className="text-[8px] text-purple-400 font-semibold mt-0.5">
+                        Click →
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              ) : (
+                // Regular Ad
+                <a 
+                  key={`${ad.id}-${index}`}
+                  href="#"
+                  className={`block bg-gradient-to-br ${ad.bgColor} rounded-lg p-2 shadow-md hover:shadow-purple-500/20 hover:scale-[1.01] transition-all duration-300 text-white border border-white/10 relative group h-[calc((100vh-8rem)/5-0.5rem)]`}
+                >
+                  <div className="absolute top-1 right-1 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
+                    Ad
+                  </div>
+                  <div className="flex flex-col items-center justify-center text-center gap-1 h-full">
+                    <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm">
+                      <span className="text-lg">{ad.icon}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[10px] mb-0.5 leading-tight">{ad.name}</h3>
+                      <p className="text-[8px] opacity-80 leading-tight line-clamp-2">{ad.tagline}</p>
+                    </div>
+                  </div>
+                </a>
+              )
+            ))}
+          </div>
         </aside>
 
         {/* Main Survey Content */}
-        <main className="flex-1 lg:ml-72 lg:mr-72 flex items-center justify-center p-4 md:p-8 py-12">
-          <div className="w-full max-w-3xl bg-gray-900 rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-800">
+        <main className="flex-1 lg:ml-44 lg:mr-44 flex items-center justify-center px-3 md:p-4 py-1 lg:py-6">
+          <div className="w-full max-w-lg bg-gray-900 rounded-lg shadow-md p-3 md:p-5 border border-gray-800">
           
           {!showResults ? (
-            <div className="space-y-8">
+            <div className="space-y-3 md:space-y-5">
               <div className="text-center">
-                <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white">{survey.name}</h1>
-                <p className="text-gray-400 text-sm">Question {currentQuestion + 1} of {questions.length}</p>
+                <h1 className="text-xl md:text-2xl font-bold mb-1 md:mb-2 text-white">{survey.name}</h1>
+                <p className="text-gray-400 text-xs">Question {currentQuestion + 1} of {questions.length}</p>
               </div>
               
               {/* Progress Bar */}
-              <div className="mb-8">
-                <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
+              <div className="mb-3 md:mb-5">
+                <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
                   <div 
-                    className="h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+                    className="h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
                     style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
                   ></div>
                 </div>
               </div>
               
-              <div className="text-center mb-8">
-                <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-white leading-relaxed">
+              <div className="text-center mb-3 md:mb-5">
+                <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-5 text-white leading-relaxed">
                   {questions[currentQuestion].title}
                 </h2>
                 
                 {/* Text Input */}
                 {questions[currentQuestion].questionType === 'text' ? (
-                  <div className="mb-8">
+                  <div className="mb-3 md:mb-5">
                     <textarea
                       value={answers[currentQuestion] || ""}
                       onChange={(e) => handleTextInput(e.target.value)}
                       placeholder="Type your answer here..."
-                      rows={5}
-                      className="w-full p-5 rounded-2xl border-2 border-gray-700 focus:border-purple-500 focus:outline-none bg-gray-800 text-white placeholder-gray-500 text-lg transition-all duration-200 resize-none"
+                      rows={4}
+                      className="w-full p-3 rounded-lg border-2 border-gray-700 focus:border-purple-500 focus:outline-none bg-gray-800 text-white placeholder-gray-500 text-sm transition-all duration-200 resize-none"
                     />
                   </div>
                 ) : questions[currentQuestion].questionType === 'rating' ? (
                   /* Rating Scale */
-                  <div className="mb-8">
-                    <div className="flex justify-center gap-3 md:gap-5">
+                  <div className="mb-3 md:mb-5">
+                    <div className="flex justify-center gap-2 md:gap-3">
                       {[1, 2, 3, 4, 5].map((rating) => (
                         <button
                           key={rating}
                           onClick={() => handleAnswer(rating.toString())}
-                          className={`w-14 h-14 md:w-20 md:h-20 rounded-2xl border-2 transition-all duration-200 font-bold text-xl md:text-2xl ${
+                          className={`w-10 h-10 md:w-14 md:h-14 rounded-xl border-2 transition-all duration-200 font-bold text-base md:text-lg ${
                             answers[currentQuestion] === rating.toString()
                               ? 'border-purple-500 bg-gradient-to-br from-purple-500 to-pink-500 text-white scale-110 shadow-lg shadow-purple-500/50'
                               : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-purple-500 hover:text-white hover:scale-105'
@@ -310,19 +374,19 @@ export default function PublicSurvey({ survey, questions }) {
                         </button>
                       ))}
                     </div>
-                    <div className="flex justify-between mt-4 text-sm text-gray-400 px-2">
+                    <div className="flex justify-between mt-2 text-xs text-gray-400 px-1">
                       <span>Low</span>
                       <span>High</span>
                     </div>
                   </div>
                 ) : (
                   /* Multiple Choice Options */
-                  <div className="grid grid-cols-1 gap-4 mb-8">
+                  <div className="grid grid-cols-1 gap-2.5 mb-3 md:mb-5">
                     {questions[currentQuestion].options?.map((option, index) => (
                       <button
                         key={option._id || index}
                         onClick={() => handleAnswer(option.value || option.text || option)}
-                        className={`p-5 text-left rounded-2xl border-2 transition-all duration-200 text-base md:text-lg ${
+                        className={`p-3 text-left rounded-lg border-2 transition-all duration-200 text-sm md:text-base ${
                           answers[currentQuestion] === (option.value || option.text || option)
                             ? 'border-purple-500 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white shadow-lg shadow-purple-500/20' 
                             : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 hover:bg-gray-750 hover:text-white'
@@ -336,16 +400,16 @@ export default function PublicSurvey({ survey, questions }) {
 
                 {/* Validation Message */}
                 {validationMessage && (
-                  <div className="text-pink-400 mb-6 animate-bounce text-base md:text-lg font-medium">
+                  <div className="text-pink-400 mb-3 md:mb-4 animate-bounce text-sm font-medium">
                     {validationMessage}
                   </div>
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between items-center mt-10">
+                <div className="flex justify-between items-center mt-4 md:mt-6">
                   <button
                     onClick={handleBack}
-                    className={`flex items-center justify-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all text-base font-semibold min-w-[110px] ${
+                    className={`flex items-center justify-center gap-1.5 px-4 md:px-5 py-2 rounded-full transition-all text-sm font-semibold min-w-[90px] ${
                       currentQuestion > 0
                         ? 'bg-gray-800 hover:bg-gray-700 text-white border-2 border-gray-700'
                         : 'bg-gray-900 text-gray-600 cursor-not-allowed border-2 border-gray-800'
@@ -358,7 +422,7 @@ export default function PublicSurvey({ survey, questions }) {
                       viewBox="0 0 24 24" 
                       strokeWidth={2.5} 
                       stroke="currentColor" 
-                      className="w-5 h-5"
+                      className="w-4 h-4"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                     </svg>
@@ -368,7 +432,7 @@ export default function PublicSurvey({ survey, questions }) {
                   <button
                     onClick={handleForward}
                     disabled={isSubmitting}
-                    className={`flex items-center justify-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all text-base font-semibold min-w-[110px] disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`flex items-center justify-center gap-1.5 px-4 md:px-5 py-2 rounded-full transition-all text-sm font-semibold min-w-[90px] disabled:opacity-50 disabled:cursor-not-allowed ${
                       currentQuestion === questions.length - 1
                         ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg shadow-green-500/50'
                         : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg shadow-purple-500/50'
@@ -389,7 +453,7 @@ export default function PublicSurvey({ survey, questions }) {
                             viewBox="0 0 24 24" 
                             strokeWidth={2.5} 
                             stroke="currentColor" 
-                            className="w-5 h-5"
+                            className="w-4 h-4"
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                           </svg>
@@ -412,86 +476,56 @@ export default function PublicSurvey({ survey, questions }) {
         </main>
 
         {/* Right Ad Space - Fixed to right edge on desktop */}
-        <aside className="hidden lg:flex flex-col gap-6 w-72 shrink-0 p-6 fixed right-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
-          {/* Ad Disclaimer */}
-          <div className="text-center mb-2">
-            <p className="text-xs text-purple-200/60 leading-relaxed">
-              💜 We keep surveys free through ads
-            </p>
-          </div>
+        <aside className="hidden lg:flex flex-col gap-2 w-44 shrink-0 p-2 fixed right-0 top-16 h-[calc(100vh-4rem)] justify-between">
 
-          {adSpaces.filter(ad => ad.position === "right").map((ad) => (
-            ad.isEmpty ? (
-              // Empty Ad Slot
-              <a 
-                key={ad.id}
-                href="https://getquizzy.online/advertise"
-                className="block bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-3xl p-6 hover:border-purple-500 hover:bg-gray-800/70 transition-all duration-300 text-center group"
-              >
-                <div className="flex flex-col items-center text-center gap-4 py-4">
-                  <div className="w-16 h-16 flex items-center justify-center bg-gray-700/50 rounded-2xl group-hover:bg-purple-500/20 transition-colors">
-                    <span className="text-3xl">📢</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base mb-2 text-gray-400 group-hover:text-purple-300">
-                      Your Ad Here
-                    </h3>
-                    <p className="text-sm text-gray-500 group-hover:text-gray-400 leading-relaxed">
-                      Reach thousands of engaged users
-                    </p>
-                    <div className="mt-3 text-xs text-purple-400 font-semibold">
-                      Click to advertise →
+          {/* Display 5 rotating ads */}
+          <div className="flex-1 flex flex-col gap-2 justify-center">
+            {getDisplayAds(rightAds).map((ad, index) => (
+              ad.isEmpty ? (
+                // Empty Ad Slot
+                <a 
+                  key={`${ad.id}-${index}`}
+                  href="https://getquizzy.online/advertise"
+                  className="block bg-gray-800/50 border border-dashed border-gray-700 rounded-lg p-2 hover:border-purple-500/50 hover:bg-gray-800/70 transition-all duration-300 text-center group h-[calc((100vh-8rem)/5-0.5rem)]"
+                >
+                  <div className="flex flex-col items-center justify-center gap-1 h-full">
+                    <div className="w-8 h-8 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                      <span className="text-lg">📢</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[10px] text-gray-400 group-hover:text-purple-300">
+                        Ad Space
+                      </h3>
+                      <p className="text-[8px] text-purple-400 font-semibold mt-0.5">
+                        Click →
+                      </p>
                     </div>
                   </div>
-                </div>
-              </a>
-            ) : (
-              // Regular Ad
-              <a 
-                key={ad.id}
-                href="#"
-                className={`block bg-gradient-to-br ${ad.bgColor} rounded-3xl p-6 shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 text-white border border-white/10 relative group`}
-              >
-                <div className="absolute top-2 right-2 text-[10px] text-white/40 bg-black/20 px-2 py-0.5 rounded-full">
-                  Ad
-                </div>
-                <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-sm">
-                    <span className="text-4xl">{ad.icon}</span>
+                </a>
+              ) : (
+                // Regular Ad
+                <a 
+                  key={`${ad.id}-${index}`}
+                  href="#"
+                  className={`block bg-gradient-to-br ${ad.bgColor} rounded-lg p-2 shadow-md hover:shadow-purple-500/20 hover:scale-[1.01] transition-all duration-300 text-white border border-white/10 relative group h-[calc((100vh-8rem)/5-0.5rem)]`}
+                >
+                  <div className="absolute top-1 right-1 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
+                    Ad
                   </div>
-                  <div>
-                    <h3 className="font-bold text-base mb-2">{ad.name}</h3>
-                    <p className="text-sm opacity-90 leading-relaxed">{ad.tagline}</p>
+                  <div className="flex flex-col items-center justify-center text-center gap-1 h-full">
+                    <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm">
+                      <span className="text-lg">{ad.icon}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[10px] mb-0.5 leading-tight">{ad.name}</h3>
+                      <p className="text-[8px] opacity-80 leading-tight line-clamp-2">{ad.tagline}</p>
+                    </div>
                   </div>
-                </div>
-              </a>
-            )
-          ))}
+                </a>
+              )
+            ))}
+          </div>
         </aside>
-      </div>
-
-      {/* Mobile Ad Space - Shown at bottom on mobile */}
-      <div className="lg:hidden mt-8 px-4 pb-8">
-        <h3 className="text-center text-sm font-semibold text-purple-200 mb-6">Featured Partners</h3>
-        <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-          {adSpaces.slice(0, 4).map((ad) => (
-            <a 
-              key={ad.id}
-              href="#"
-              className={`block bg-gradient-to-br ${ad.bgColor} rounded-2xl p-4 shadow-xl text-white border border-white/10`}
-            >
-              <div className="flex flex-col items-center text-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-white/10 rounded-xl">
-                  <span className="text-2xl">{ad.icon}</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-xs mb-1">{ad.name}</h3>
-                  <p className="text-[10px] opacity-90 leading-tight line-clamp-2">{ad.tagline}</p>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
       </div>
     </div>
   );
