@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { GeistSans, GeistMono } from 'geist/font';
 import axios from "axios";
@@ -82,12 +82,56 @@ export default function PublicSurvey({ survey, questions }) {
   const leftAds = adSpaces.filter(ad => ad.position === "left");
   const rightAds = adSpaces.filter(ad => ad.position === "right");
   
+  // Refs for mobile ad carousels
+  const topAdRef = useRef(null);
+  const bottomAdRef = useRef(null);
+  const isUserInteractingTop = useRef(false);
+  const isUserInteractingBottom = useRef(false);
+  
   // Auto-rotate ads every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setAdRotationIndex(prev => prev + 1);
     }, 3000);
     return () => clearInterval(interval);
+  }, []);
+  
+  // Auto-scroll mobile ads (conveyor belt effect)
+  useEffect(() => {
+    const scrollSpeed = 0.5; // pixels per frame
+    let animationFrameId;
+    
+    const autoScroll = () => {
+      // Top carousel
+      if (topAdRef.current && !isUserInteractingTop.current) {
+        const scrollContainer = topAdRef.current;
+        const maxScroll = scrollContainer.scrollWidth / 4; // Scroll through 1 of 4 sets
+        
+        if (scrollContainer.scrollLeft >= maxScroll) {
+          scrollContainer.scrollLeft = 0;
+        } else {
+          scrollContainer.scrollLeft += scrollSpeed;
+        }
+      }
+      
+      // Bottom carousel
+      if (bottomAdRef.current && !isUserInteractingBottom.current) {
+        const scrollContainer = bottomAdRef.current;
+        const maxScroll = scrollContainer.scrollWidth / 4; // Scroll through 1 of 4 sets
+        
+        if (scrollContainer.scrollLeft >= maxScroll) {
+          scrollContainer.scrollLeft = 0;
+        } else {
+          scrollContainer.scrollLeft += scrollSpeed;
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(autoScroll);
+    };
+    
+    animationFrameId = requestAnimationFrame(autoScroll);
+    
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
   
   // Get 5 ads to display, cycling through all ads
@@ -234,9 +278,21 @@ export default function PublicSurvey({ survey, questions }) {
         </div>
         
         {/* Auto-scrolling & Swipeable Ads */}
-        <div className="overflow-hidden">
-          <div className="flex animate-scroll-left hover:pause-animation" onTouchStart={(e) => e.currentTarget.style.animationPlayState = 'paused'} onTouchEnd={(e) => e.currentTarget.style.animationPlayState = 'running'}>
-          {[...adSpaces, ...adSpaces, ...adSpaces].map((ad, index) => (
+        <div 
+          ref={topAdRef}
+          className="overflow-x-auto scrollbar-hide"
+          style={{ scrollBehavior: 'auto' }}
+          onTouchStart={() => { isUserInteractingTop.current = true; }}
+          onTouchEnd={() => { 
+            setTimeout(() => { isUserInteractingTop.current = false; }, 2000);
+          }}
+          onMouseDown={() => { isUserInteractingTop.current = true; }}
+          onMouseUp={() => { 
+            setTimeout(() => { isUserInteractingTop.current = false; }, 2000);
+          }}
+        >
+          <div className="flex">
+          {[...adSpaces, ...adSpaces, ...adSpaces, ...adSpaces].map((ad, index) => (
             ad.isEmpty ? (
               // Empty Ad Slot
               <a
@@ -565,9 +621,22 @@ export default function PublicSurvey({ survey, questions }) {
       </div>
 
       {/* Mobile Bottom Ad Carousel - Auto-scrolling & Swipeable */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 z-40 overflow-hidden">
-        <div className="flex animate-scroll-left hover:pause-animation" onTouchStart={(e) => e.currentTarget.style.animationPlayState = 'paused'} onTouchEnd={(e) => e.currentTarget.style.animationPlayState = 'running'}>
-          {[...adSpaces, ...adSpaces, ...adSpaces].map((ad, index) => (
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 z-40">
+        <div 
+          ref={bottomAdRef}
+          className="overflow-x-auto scrollbar-hide"
+          style={{ scrollBehavior: 'auto' }}
+          onTouchStart={() => { isUserInteractingBottom.current = true; }}
+          onTouchEnd={() => { 
+            setTimeout(() => { isUserInteractingBottom.current = false; }, 2000);
+          }}
+          onMouseDown={() => { isUserInteractingBottom.current = true; }}
+          onMouseUp={() => { 
+            setTimeout(() => { isUserInteractingBottom.current = false; }, 2000);
+          }}
+        >
+          <div className="flex">
+          {[...adSpaces, ...adSpaces, ...adSpaces, ...adSpaces].map((ad, index) => (
             ad.isEmpty ? (
               // Empty Ad Slot
               <a
@@ -607,6 +676,7 @@ export default function PublicSurvey({ survey, questions }) {
               </a>
             )
           ))}
+          </div>
         </div>
       </div>
 
