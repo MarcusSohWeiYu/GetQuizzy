@@ -217,7 +217,7 @@ export default function AdPricing() {
         <div id="application-form" className="max-w-3xl mx-auto bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-gray-700">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">Apply for Ad Space</h2>
-            <p className="text-gray-400">Fill out the form below and we'll review your application within 24 hours</p>
+            <p className="text-gray-400">Fill out the form below and we&apos;ll review your application within 24 hours</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -302,7 +302,7 @@ export default function AdPricing() {
                 </svg>
                 <div className="text-sm text-purple-200">
                   <strong className="text-purple-100">Manual Approval Process:</strong> All ads are reviewed to ensure quality and relevance. 
-                  We'll send you a confirmation email within 24 hours once approved. Rejected applications will receive feedback.
+                  We&apos;ll send you a confirmation email within 24 hours once approved. Rejected applications will receive feedback.
                 </div>
               </div>
             </div>
