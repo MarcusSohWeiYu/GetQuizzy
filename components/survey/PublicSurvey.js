@@ -96,12 +96,11 @@ export default function PublicSurvey({ survey, questions }) {
     return () => clearInterval(interval);
   }, []);
   
-  // Auto-scroll mobile ads (conveyor belt effect)
+  // Auto-scroll mobile ads (conveyor belt effect) - Using setInterval for mobile compatibility
   useEffect(() => {
-    const scrollSpeed = 0.5; // pixels per frame
-    let animationFrameId;
+    const scrollSpeed = 1; // pixels per interval
     
-    const autoScroll = () => {
+    const scrollInterval = setInterval(() => {
       // Top carousel
       if (topAdRef.current && !isUserInteractingTop.current) {
         const scrollContainer = topAdRef.current;
@@ -125,13 +124,9 @@ export default function PublicSurvey({ survey, questions }) {
           scrollContainer.scrollLeft += scrollSpeed;
         }
       }
-      
-      animationFrameId = requestAnimationFrame(autoScroll);
-    };
+    }, 20); // Run every 20ms for smooth scrolling
     
-    animationFrameId = requestAnimationFrame(autoScroll);
-    
-    return () => cancelAnimationFrame(animationFrameId);
+    return () => clearInterval(scrollInterval);
   }, []);
   
   // Get 5 ads to display, cycling through all ads
@@ -281,10 +276,18 @@ export default function PublicSurvey({ survey, questions }) {
         <div 
           ref={topAdRef}
           className="overflow-x-auto scrollbar-hide"
-          style={{ scrollBehavior: 'auto' }}
-          onTouchStart={() => { isUserInteractingTop.current = true; }}
-          onTouchEnd={() => { 
+          style={{ 
+            scrollBehavior: 'auto',
+            WebkitOverflowScrolling: 'touch'
+          }}
+          onTouchStart={(e) => { 
+            isUserInteractingTop.current = true;
+          }}
+          onTouchEnd={(e) => { 
             setTimeout(() => { isUserInteractingTop.current = false; }, 2000);
+          }}
+          onTouchMove={(e) => {
+            isUserInteractingTop.current = true;
           }}
           onMouseDown={() => { isUserInteractingTop.current = true; }}
           onMouseUp={() => { 
@@ -625,10 +628,18 @@ export default function PublicSurvey({ survey, questions }) {
         <div 
           ref={bottomAdRef}
           className="overflow-x-auto scrollbar-hide"
-          style={{ scrollBehavior: 'auto' }}
-          onTouchStart={() => { isUserInteractingBottom.current = true; }}
-          onTouchEnd={() => { 
+          style={{ 
+            scrollBehavior: 'auto',
+            WebkitOverflowScrolling: 'touch'
+          }}
+          onTouchStart={(e) => { 
+            isUserInteractingBottom.current = true;
+          }}
+          onTouchEnd={(e) => { 
             setTimeout(() => { isUserInteractingBottom.current = false; }, 2000);
+          }}
+          onTouchMove={(e) => {
+            isUserInteractingBottom.current = true;
           }}
           onMouseDown={() => { isUserInteractingBottom.current = true; }}
           onMouseUp={() => { 
