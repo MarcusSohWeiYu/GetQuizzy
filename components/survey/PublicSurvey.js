@@ -233,16 +233,16 @@ export default function PublicSurvey({ survey, questions }) {
           </button>
         </div>
         
-        {/* Swipeable Ads */}
-        <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
-          <div className="flex gap-2 px-2 py-2">
-          {adSpaces.map((ad, index) => (
+        {/* Auto-scrolling & Swipeable Ads */}
+        <div className="overflow-hidden">
+          <div className="flex animate-scroll-left hover:pause-animation" onTouchStart={(e) => e.currentTarget.style.animationPlayState = 'paused'} onTouchEnd={(e) => e.currentTarget.style.animationPlayState = 'running'}>
+          {[...adSpaces, ...adSpaces, ...adSpaces].map((ad, index) => (
             ad.isEmpty ? (
               // Empty Ad Slot
               <a
                 key={`mobile-${ad.id}-${index}`}
                 href="https://getquizzy.online/advertise"
-                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 snap-start"
+                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 m-2"
               >
                 <div className="w-7 h-7 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors shrink-0">
                   <span className="text-sm">📢</span>
@@ -261,7 +261,7 @@ export default function PublicSurvey({ survey, questions }) {
               <a
                 key={`mobile-${ad.id}-${index}`}
                 href="#"
-                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 snap-start`}
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2`}
               >
                 <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                   Ad
@@ -564,17 +564,16 @@ export default function PublicSurvey({ survey, questions }) {
         </aside>
       </div>
 
-      {/* Mobile Bottom Ad Carousel - Swipeable */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 z-40">
-        <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
-          <div className="flex gap-2 px-2 py-2">
-          {adSpaces.map((ad, index) => (
+      {/* Mobile Bottom Ad Carousel - Auto-scrolling & Swipeable */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 z-40 overflow-hidden">
+        <div className="flex animate-scroll-left hover:pause-animation" onTouchStart={(e) => e.currentTarget.style.animationPlayState = 'paused'} onTouchEnd={(e) => e.currentTarget.style.animationPlayState = 'running'}>
+          {[...adSpaces, ...adSpaces, ...adSpaces].map((ad, index) => (
             ad.isEmpty ? (
               // Empty Ad Slot
               <a
                 key={`mobile-bottom-${ad.id}-${index}`}
                 href="https://getquizzy.online/advertise"
-                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 snap-start"
+                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 m-2"
               >
                 <div className="w-7 h-7 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors shrink-0">
                   <span className="text-sm">📢</span>
@@ -593,7 +592,7 @@ export default function PublicSurvey({ survey, questions }) {
               <a
                 key={`mobile-bottom-${ad.id}-${index}`}
                 href="#"
-                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 snap-start`}
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2`}
               >
                 <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                   Ad
@@ -608,7 +607,6 @@ export default function PublicSurvey({ survey, questions }) {
               </a>
             )
           ))}
-          </div>
         </div>
       </div>
 

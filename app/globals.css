@@ -247,14 +247,18 @@ progress::-webkit-progress-value {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-66.66%);
   }
 }
 
 .animate-scroll-left {
-  animation: scroll-left 30s linear infinite;
+  animation: scroll-left 10s linear infinite;
 }
 
 .animate-scroll-left:hover {
+  animation-play-state: paused;
+}
+
+.pause-animation {
   animation-play-state: paused;
 }
