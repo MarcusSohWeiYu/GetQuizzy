@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { GeistSans, GeistMono } from 'geist/font';
 import axios from "axios";
 import SurveyResult from "./SurveyResult";
+import AdvertiseModal from "@/components/ad/AdvertiseModal";
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -76,6 +77,7 @@ export default function PublicSurvey({ survey, questions }) {
   const [validationMessage, setValidationMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adRotationIndex, setAdRotationIndex] = useState(0);
+  const [isAdvertiseModalOpen, setIsAdvertiseModalOpen] = useState(false);
   
   const leftAds = adSpaces.filter(ad => ad.position === "left");
   const rightAds = adSpaces.filter(ad => ad.position === "right");
@@ -216,17 +218,31 @@ export default function PublicSurvey({ survey, questions }) {
         </div>
       </nav>
 
-      {/* Mobile Horizontal Ad Carousel - Auto-scrolling Conveyor Belt */}
-      <div className="lg:hidden fixed top-16 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800 z-40 overflow-hidden">
-        <div className="flex animate-scroll-left">
-          {/* Duplicate ads twice for seamless infinite scroll */}
-          {[...adSpaces, ...adSpaces].map((ad, index) => (
+      {/* Mobile Horizontal Ad Carousel - Swipeable */}
+      <div className="lg:hidden fixed top-16 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800 z-40">
+        {/* Advertise Button - Top Left */}
+        <div className="px-2 pt-2">
+          <button 
+            onClick={() => setIsAdvertiseModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-800/50 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-700/70 hover:border-gray-600 hover:text-white transition-all duration-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+            </svg>
+            <span className="text-[10px] font-semibold">Advertise</span>
+          </button>
+        </div>
+        
+        {/* Swipeable Ads */}
+        <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+          <div className="flex gap-2 px-2 py-2">
+          {adSpaces.map((ad, index) => (
             ad.isEmpty ? (
               // Empty Ad Slot
               <a
                 key={`mobile-${ad.id}-${index}`}
                 href="https://getquizzy.online/advertise"
-                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 m-2"
+                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 snap-start"
               >
                 <div className="w-7 h-7 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors shrink-0">
                   <span className="text-sm">📢</span>
@@ -245,7 +261,7 @@ export default function PublicSurvey({ survey, questions }) {
               <a
                 key={`mobile-${ad.id}-${index}`}
                 href="#"
-                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2`}
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 snap-start`}
               >
                 <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                   Ad
@@ -260,15 +276,25 @@ export default function PublicSurvey({ survey, questions }) {
               </a>
             )
           ))}
+          </div>
         </div>
       </div>
 
       {/* Main Container with Ad Spaces - Added top padding for fixed nav and mobile ads */}
-      <div className="flex flex-col lg:flex-row min-h-screen pt-[4.5rem] lg:pt-16">
+      <div className="flex flex-col lg:flex-row min-h-screen pt-[5.5rem] lg:pt-16 pb-[4rem] lg:pb-0">
         
         {/* Left Ad Space - Fixed to left edge on desktop */}
-        <aside className="hidden lg:flex flex-col gap-2 w-44 shrink-0 p-2 fixed left-0 top-16 h-[calc(100vh-4rem)] justify-between">
-          
+        <aside className="hidden lg:flex flex-col gap-2 w-44 shrink-0 p-2 fixed left-0 top-16 h-[calc(100vh-4rem)]">
+          {/* Advertise Button */}
+          <button 
+            onClick={() => setIsAdvertiseModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-700/70 hover:border-gray-600 hover:text-white transition-all duration-300 group"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+            </svg>
+            <span className="text-xs font-semibold">Advertise</span>
+          </button>
 
           {/* Display 5 rotating ads */}
           <div className="flex-1 flex flex-col gap-2 justify-center">
@@ -320,13 +346,13 @@ export default function PublicSurvey({ survey, questions }) {
         </aside>
 
         {/* Main Survey Content */}
-        <main className="flex-1 lg:ml-44 lg:mr-44 flex items-center justify-center px-3 md:p-4 py-1 lg:py-6">
+        <main className="flex-1 lg:ml-44 lg:mr-44 flex items-center justify-center px-3 md:p-4 py-2 lg:py-6">
           <div className="w-full max-w-lg bg-gray-900 rounded-lg shadow-md p-3 md:p-5 border border-gray-800">
           
           {!showResults ? (
             <div className="space-y-3 md:space-y-5">
               <div className="text-center">
-                <h1 className="text-xl md:text-2xl font-bold mb-1 md:mb-2 text-white">{survey.name}</h1>
+                <h1 className="text-xl md:text-2xl font-bold mb-2 text-white">{survey.name}</h1>
                 <p className="text-gray-400 text-xs">Question {currentQuestion + 1} of {questions.length}</p>
               </div>
               
@@ -341,7 +367,7 @@ export default function PublicSurvey({ survey, questions }) {
               </div>
               
               <div className="text-center mb-3 md:mb-5">
-                <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-5 text-white leading-relaxed">
+                <h2 className="text-lg md:text-xl font-semibold mb-5 text-white leading-relaxed">
                   {questions[currentQuestion].title}
                 </h2>
                 
@@ -400,13 +426,13 @@ export default function PublicSurvey({ survey, questions }) {
 
                 {/* Validation Message */}
                 {validationMessage && (
-                  <div className="text-pink-400 mb-3 md:mb-4 animate-bounce text-sm font-medium">
+                  <div className="text-pink-400 mb-4 animate-bounce text-sm font-medium">
                     {validationMessage}
                   </div>
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between items-center mt-4 md:mt-6">
+                <div className="flex justify-between items-center mt-6">
                   <button
                     onClick={handleBack}
                     className={`flex items-center justify-center gap-1.5 px-4 md:px-5 py-2 rounded-full transition-all text-sm font-semibold min-w-[90px] ${
@@ -476,7 +502,17 @@ export default function PublicSurvey({ survey, questions }) {
         </main>
 
         {/* Right Ad Space - Fixed to right edge on desktop */}
-        <aside className="hidden lg:flex flex-col gap-2 w-44 shrink-0 p-2 fixed right-0 top-16 h-[calc(100vh-4rem)] justify-between">
+        <aside className="hidden lg:flex flex-col gap-2 w-44 shrink-0 p-2 fixed right-0 top-16 h-[calc(100vh-4rem)]">
+          {/* Advertise Button */}
+          <button 
+            onClick={() => setIsAdvertiseModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-700/70 hover:border-gray-600 hover:text-white transition-all duration-300 group"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+            </svg>
+            <span className="text-xs font-semibold">Advertise</span>
+          </button>
 
           {/* Display 5 rotating ads */}
           <div className="flex-1 flex flex-col gap-2 justify-center">
@@ -527,6 +563,60 @@ export default function PublicSurvey({ survey, questions }) {
           </div>
         </aside>
       </div>
+
+      {/* Mobile Bottom Ad Carousel - Swipeable */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 z-40">
+        <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+          <div className="flex gap-2 px-2 py-2">
+          {adSpaces.map((ad, index) => (
+            ad.isEmpty ? (
+              // Empty Ad Slot
+              <a
+                key={`mobile-bottom-${ad.id}-${index}`}
+                href="https://getquizzy.online/advertise"
+                className="flex items-center gap-2 bg-gray-800/50 border border-dashed border-gray-700 rounded-lg px-3 py-1.5 hover:border-purple-500/50 transition-all duration-300 group min-w-[140px] shrink-0 snap-start"
+              >
+                <div className="w-7 h-7 flex items-center justify-center bg-gray-700/50 rounded-lg group-hover:bg-purple-500/20 transition-colors shrink-0">
+                  <span className="text-sm">📢</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-[10px] text-gray-400 group-hover:text-purple-300 truncate">
+                    Your Ad
+                  </h3>
+                  <p className="text-[8px] text-purple-400 font-semibold">
+                    Advertise
+                  </p>
+                </div>
+              </a>
+            ) : (
+              // Regular Ad
+              <a
+                key={`mobile-bottom-${ad.id}-${index}`}
+                href="#"
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 snap-start`}
+              >
+                <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
+                  Ad
+                </div>
+                <div className="w-7 h-7 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm shrink-0">
+                  <span className="text-sm">{ad.icon}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-[10px] mb-0.5 leading-tight truncate">{ad.name}</h3>
+                  <p className="text-[8px] opacity-80 leading-tight truncate">{ad.tagline}</p>
+                </div>
+              </a>
+            )
+          ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Advertise Modal */}
+      <AdvertiseModal 
+        isOpen={isAdvertiseModalOpen} 
+        onClose={() => setIsAdvertiseModalOpen(false)} 
+      />
     </div>
   );
 }

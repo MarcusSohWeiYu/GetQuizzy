@@ -15,13 +15,19 @@ const config = {
     onlyShowOnRoutes: ["/"],
   },
   stripe: {
+    // Advertising price ID for monthly ad subscriptions
+    advertisingPriceId:
+      process.env.NODE_ENV === "development"
+        ? "price_1SrYtbAegkx8YwOK2l2I10i7" // Replace with your actual dev price ID
+        : "price_456", // Replace with your actual prod price ID
+    
     // Create multiple plans in your Stripe dashboard, then add them here. You can add as many plans as you want, just make sure to add the priceId
     plans: [
       {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1Niyy5AxyNprDp7iZIqEyD2h"
+            ? "price_1SrYtbAegkx8YwOK2l2I10i7"
             : "price_456",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Starter",
