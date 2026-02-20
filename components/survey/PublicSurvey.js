@@ -78,6 +78,7 @@ export default function PublicSurvey({ survey, questions }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adRotationIndex, setAdRotationIndex] = useState(0);
   const [isAdvertiseModalOpen, setIsAdvertiseModalOpen] = useState(false);
+  const [responseId, setResponseId] = useState(null);
   
   const leftAds = adSpaces.filter(ad => ad.position === "left");
   const rightAds = adSpaces.filter(ad => ad.position === "right");
@@ -208,6 +209,9 @@ export default function PublicSurvey({ survey, questions }) {
       });
 
       console.log('Success:', response.data);
+      
+      // Store the response ID for caching AI-generated content
+      setResponseId(response.data.responseId);
       setShowResults(true);
     } catch (error) {
       console.error('Error submitting responses:', error);
@@ -555,6 +559,7 @@ export default function PublicSurvey({ survey, questions }) {
               survey={survey} 
               questions={questions} 
               answers={answers}
+              responseId={responseId}
             />
           )}
         </div>

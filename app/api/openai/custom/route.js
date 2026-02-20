@@ -1,14 +1,37 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { checkRateLimit } from "@/libs/rateLimit";
 
 export async function POST(req) {
   try {
-    const { content } = await req.json();
+    const { content, responseId, surveyId } = await req.json();
 
     if (!content) {
       return NextResponse.json(
         { error: "Content is required" },
         { status: 400 }
+      );
+    }
+
+    // Check rate limit (use surveyId for spam prevention)
+    const rateLimitResult = await checkRateLimit(req, "/api/openai/custom", responseId, surveyId);
+    
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { 
+          error: rateLimitResult.error,
+          retryAfter: rateLimitResult.retryAfter,
+          limit: rateLimitResult.limit
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': rateLimitResult.retryAfter?.toString() || '3600',
+            'X-RateLimit-Limit': rateLimitResult.limit?.total?.toString() || '10',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.limit?.reset?.toISOString() || '',
+          }
+        }
       );
     }
 
@@ -34,8 +57,16 @@ export async function POST(req) {
 
     return NextResponse.json({
       content: assistantMessage,
-      fullResponse: response
-    }, { status: 200 });
+      fullResponse: response,
+      rateLimit: rateLimitResult.limit
+    }, { 
+      status: 200,
+      headers: {
+        'X-RateLimit-Limit': rateLimitResult.limit?.total?.toString() || '10',
+        'X-RateLimit-Remaining': rateLimitResult.limit?.remaining?.toString() || '0',
+        'X-RateLimit-Reset': rateLimitResult.limit?.reset?.toISOString() || '',
+      }
+    });
 
   } catch (error) {
     console.error("OpenAI API error:", error);

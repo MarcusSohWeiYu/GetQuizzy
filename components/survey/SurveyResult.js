@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ImageGenerationPrompt } from "@/libs/helpers/prompt";
 
-const SurveyResult = ({ survey, questions, answers }) => {
+const SurveyResult = ({ survey, questions, answers, responseId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [componentData, setComponentData] = useState({});
   const [errors, setErrors] = useState({});
@@ -17,12 +17,64 @@ const SurveyResult = ({ survey, questions, answers }) => {
   useEffect(() => {
     // Process each component that needs AI generation
     const processComponents = async () => {
+      console.log('🚀 Starting processComponents with responseId:', responseId);
+      
       // Check if there are any AI components that need processing
       const hasAIComponents = sortedComponents.some(
         comp => comp.type === 'ai-avatar' || comp.type === 'ai-custom'
       );
 
-      if (!hasAIComponents) return;
+      if (!hasAIComponents) {
+        console.log('ℹ️ No AI components found');
+        return;
+      }
+
+      // If we have a responseId, try to fetch cached data first
+      if (responseId) {
+        try {
+          console.log('🔍 Checking cache for response:', responseId);
+          const cacheResponse = await axios.get(`/api/ai-cache/${responseId}`);
+          console.log('📦 Cache response:', cacheResponse.data);
+          if (cacheResponse.data.cached) {
+            // Load cached data into component state
+            const cachedData = cacheResponse.data.aiGeneratedContent;
+            const loadedData = {};
+            
+            // Load avatar cache
+            if (cachedData.avatar) {
+              const avatarComp = sortedComponents.find(c => c.type === 'ai-avatar');
+              if (avatarComp) {
+                loadedData[avatarComp.id] = {
+                  type: 'ai-avatar',
+                  imageUrl: cachedData.avatar.imageUrl,
+                  avatarName: cachedData.avatar.avatarName,
+                  prompt: cachedData.avatar.prompt
+                };
+              }
+            }
+            
+            // Load custom content cache
+            if (cachedData.customContent && Array.isArray(cachedData.customContent)) {
+              cachedData.customContent.forEach(custom => {
+                const comp = sortedComponents.find(c => c.id.toString() === custom.componentId);
+                if (comp) {
+                  loadedData[comp.id] = {
+                    type: 'ai-custom',
+                    title: custom.title,
+                    data: { content: custom.content }
+                  };
+                }
+              });
+            }
+            
+            // Set cached data and return early
+            setComponentData(loadedData);
+            return;
+          }
+        } catch (error) {
+          console.log('No cache found, generating new content:', error.message);
+        }
+      }
 
       setIsLoading(true);
       
@@ -57,14 +109,20 @@ const SurveyResult = ({ survey, questions, answers }) => {
         // Format prompt using helper - answers is an object with index keys
         const prompt = ImageGenerationPrompt(aiInstructions, answers, questions);
         
-        // Call avatar API to generate the image
-        const avatarResponse = await axios.post('/api/openai/avatar', { prompt });
+        // Call avatar API to generate the image (with rate limiting and surveyId)
+        const avatarResponse = await axios.post('/api/openai/avatar', { 
+          prompt,
+          responseId,
+          surveyId: survey._id || survey.id
+        });
         const imageUrl = avatarResponse.data.data?.[0]?.url;
         
         // Call custom AI API to generate a creative name for the avatar
         const namePrompt = `Based on this avatar description: "${prompt}". Follow the instructions and generate a creative and catchy 2-3 word name for this character. Only return the name, nothing else. Examples: "Glamorous Tiger", "Wise Owl", "Cheerful Sunflower". Keep it short and memorable.`;
         const nameResponse = await axios.post('/api/openai/custom', { 
-          content: namePrompt 
+          content: namePrompt,
+          responseId,
+          surveyId: survey._id || survey.id
         });
         
         // Extract the name from the response
@@ -82,15 +140,34 @@ const SurveyResult = ({ survey, questions, answers }) => {
           console.error('Error parsing avatar name:', e);
         }
         
+        const avatarData = {
+          type: 'ai-avatar',
+          imageUrl: imageUrl,
+          avatarName: avatarName,
+          prompt: prompt
+        };
+        
         setComponentData(prev => ({
           ...prev,
-          [componentId]: {
-            type: 'ai-avatar',
-            imageUrl: imageUrl,
-            avatarName: avatarName,
-            prompt: prompt
-          }
+          [componentId]: avatarData
         }));
+        
+        // Save to cache if we have a responseId
+        if (responseId) {
+          try {
+            console.log('💾 Attempting to cache avatar data for response:', responseId);
+            const cacheResult = await axios.post(`/api/ai-cache/${responseId}`, {
+              type: 'avatar',
+              data: avatarData
+            });
+            console.log('✅ Avatar cache saved:', cacheResult.data);
+          } catch (cacheError) {
+            console.error('❌ Failed to cache avatar data:', cacheError);
+            console.error('Error details:', cacheError.response?.data);
+          }
+        } else {
+          console.warn('⚠️ No responseId available for caching avatar');
+        }
       } else if (component.type === 'ai-custom') {
         // Get custom AI instructions from component config
         const customPrompt = component.config?.prompt || '';
@@ -108,25 +185,58 @@ const SurveyResult = ({ survey, questions, answers }) => {
         
         // Call custom AI API
         const response = await axios.post('/api/openai/custom', { 
-          content: formattedContent 
+          content: formattedContent,
+          responseId,
+          surveyId: survey._id || survey.id
         });
+        
+        const customData = {
+          type: 'ai-custom',
+          title: title,
+          sections: sections,
+          data: response.data
+        };
         
         setComponentData(prev => ({
           ...prev,
-          [componentId]: {
-            type: 'ai-custom',
-            title: title,
-            sections: sections,
-            data: response.data
-          }
+          [componentId]: customData
         }));
+        
+        // Save to cache if we have a responseId
+        if (responseId) {
+          try {
+            console.log('💾 Attempting to cache custom AI data for response:', responseId);
+            const cacheResult = await axios.post(`/api/ai-cache/${responseId}`, {
+              type: 'custom',
+              componentId: componentId.toString(),
+              title: title,
+              data: response.data
+            });
+            console.log('✅ Custom AI cache saved:', cacheResult.data);
+          } catch (cacheError) {
+            console.error('❌ Failed to cache custom data:', cacheError);
+            console.error('Error details:', cacheError.response?.data);
+          }
+        } else {
+          console.warn('⚠️ No responseId available for caching custom AI');
+        }
       }
     } catch (error) {
       console.error(`Error generating ${component.type}:`, error);
-      setErrors(prev => ({
-        ...prev,
-        [componentId]: error.response?.data?.error || error.message || 'Failed to generate content'
-      }));
+      
+      // Check if it's a rate limit error (429)
+      if (error.response?.status === 429) {
+        const errorData = error.response.data;
+        setErrors(prev => ({
+          ...prev,
+          [componentId]: errorData.error || 'Rate limit exceeded. Please try again later.'
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          [componentId]: error.response?.data?.error || error.message || 'Failed to generate content'
+        }));
+      }
     }
   };
 

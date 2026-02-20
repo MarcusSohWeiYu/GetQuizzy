@@ -55,6 +55,22 @@ const responseSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    
+    // AI-generated content cache (for result experience)
+    aiGeneratedContent: {
+        avatar: {
+            imageUrl: String,
+            avatarName: String,
+            prompt: String,
+            generatedAt: Date,
+        },
+        customContent: [{
+            componentId: String,
+            title: String,
+            content: String,
+            generatedAt: Date,
+        }],
+    },
 }, {
     timestamps: true, // Adds createdAt and updatedAt
 });
