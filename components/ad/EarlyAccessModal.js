@@ -235,7 +235,7 @@ export default function EarlyAccessModal({ isOpen, onClose }) {
 
               {/* Additional Info */}
               <p className="text-xs text-gray-500 text-center pt-2 border-t border-gray-800">
-                We'll review your application
+                We&apos;ll review your application
               </p>
             </>
           ) : (
@@ -248,10 +248,10 @@ export default function EarlyAccessModal({ isOpen, onClose }) {
               </div>
               <h3 className="text-xl font-bold text-white">Application Submitted!</h3>
               <p className="text-gray-400 text-sm max-w-sm mx-auto">
-                Thank you for your interest in advertising on GetQuizzy. We've received your application and will review it.
+                Thank you for your interest in advertising on GetQuizzy. We&apos;ve received your application and will review it.
               </p>
               <p className="text-gray-400 text-sm">
-                We'll contact you at <span className="text-purple-400 font-semibold">{formData.email}</span>
+                We&apos;ll contact you at <span className="text-purple-400 font-semibold">{formData.email}</span>
               </p>
               <button
                 onClick={onClose}

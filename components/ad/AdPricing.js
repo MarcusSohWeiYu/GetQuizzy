@@ -58,10 +58,10 @@ export default function AdPricing() {
             </div>
             <h2 className="text-3xl font-bold text-white">Application Submitted!</h2>
             <p className="text-gray-300 text-lg max-w-xl mx-auto">
-              Thank you for your interest in advertising on GetQuizzy. We've received your application and will review it within 24-48 hours.
+              Thank you for your interest in advertising on GetQuizzy. We&apos;ve received your application and will review it within 24-48 hours.
             </p>
             <p className="text-gray-400">
-              We'll contact you at <span className="text-purple-400 font-semibold">{formData.email}</span>
+              We&apos;ll contact you at <span className="text-purple-400 font-semibold">{formData.email}</span>
             </p>
             <button
               onClick={() => {
@@ -166,7 +166,7 @@ export default function AdPricing() {
             <div className="max-w-3xl mx-auto bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-gray-700">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-white mb-3">Apply for Early Access to Ad Spot</h2>
-                <p className="text-gray-400">Fill out the form below and we'll review your application</p>
+                <p className="text-gray-400">Fill out the form below and we&apos;ll review your application</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -269,7 +269,7 @@ export default function AdPricing() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-purple-200">
-                      <strong className="text-purple-100">Early Access:</strong> We're currently in beta and offering limited ad spots. 
+                      <strong className="text-purple-100">Early Access:</strong> We&apos;re currently in beta and offering limited ad spots. 
                       All applications are reviewed to ensure quality and relevance.
                     </div>
                   </div>
