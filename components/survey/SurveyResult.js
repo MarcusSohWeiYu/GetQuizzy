@@ -391,7 +391,7 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
             onClick={onRetakeSurvey}
             className="btn btn-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
-            🔄 Take Survey Again
+            Take Survey Again
           </button>
         )}
       </div>
