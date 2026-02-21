@@ -10,6 +10,8 @@ export async function POST(req) {
   try {
     const { prompt, responseId, surveyId } = await req.json();
 
+    console.log('🔵 Avatar API called with:', { responseId, surveyId });
+
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
@@ -20,7 +22,14 @@ export async function POST(req) {
     // Check rate limit (use surveyId for spam prevention)
     const rateLimitResult = await checkRateLimit(req, "/api/openai/avatar", responseId, surveyId);
     
+    console.log('🔍 Rate limit check result:', {
+      allowed: rateLimitResult.allowed,
+      remaining: rateLimitResult.limit?.remaining,
+      total: rateLimitResult.limit?.total
+    });
+    
     if (!rateLimitResult.allowed) {
+      console.log('🚫 Rate limit exceeded! Returning 429');
       return NextResponse.json(
         { 
           error: rateLimitResult.error,
@@ -39,6 +48,7 @@ export async function POST(req) {
       );
     }
 
+    console.log('✅ Rate limit OK, generating image...');
     const response = await openai.images.generate({
       model: "dall-e-3",
       prompt: prompt,
@@ -46,6 +56,7 @@ export async function POST(req) {
       n: 1,
     });
 
+    console.log('🎨 Image generated successfully');
     return NextResponse.json({
       data: response.data,
       created: response.created,

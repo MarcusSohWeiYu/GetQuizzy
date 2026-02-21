@@ -8,13 +8,13 @@ const RATE_LIMITS = {
   "/api/openai/avatar": {
     maxRequests: 3,
     windowMs: 60 * 60 * 1000, // 1 hour in milliseconds
-    // windowMs: 30 * 1000, // 30 seconds (TEST)
+    //windowMs: 60 * 1000 * 5, // 5 minutes (TEST)
     message: "AI Avatar generation limit exceeded. Please try again in {timeLeft}.",
   },
   "/api/openai/custom": {
-    maxRequests: 2,
+    maxRequests: 6,
     windowMs: 60 * 60 * 1000, // 1 hour in milliseconds
-    // windowMs: 30 * 1000, // 30 seconds (TEST)
+    //windowMs: 60 * 1000 * 5, // 5 minutes (TEST)
     message: "AI content generation limit exceeded. Please try again in {timeLeft}.",
   },
 };
@@ -80,6 +80,7 @@ export async function checkRateLimit(req, endpoint, responseId = null, surveyId 
     
     // Get client identifier (prefer surveyId over responseId for spam prevention)
     const identifier = getClientIdentifier(req, responseId, surveyId);
+    console.log('🔑 Rate limit identifier:', identifier, { responseId, surveyId });
     
     // Find existing rate limit record
     const now = new Date();
@@ -90,6 +91,12 @@ export async function checkRateLimit(req, endpoint, responseId = null, surveyId 
       apiEndpoint: endpoint,
       windowStart: { $gte: windowStart },
     });
+    
+    console.log('📊 Existing rate limit record:', rateLimitRecord ? {
+      requestCount: rateLimitRecord.requestCount,
+      windowStart: rateLimitRecord.windowStart,
+      identifier: rateLimitRecord.identifier
+    } : 'None found');
     
     // If no record exists, create one
     if (!rateLimitRecord) {

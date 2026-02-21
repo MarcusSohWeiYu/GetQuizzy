@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ImageGenerationPrompt } from "@/libs/helpers/prompt";
 
@@ -8,6 +8,7 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [componentData, setComponentData] = useState({});
   const [errors, setErrors] = useState({});
+  const hasProcessedRef = useRef(false); // Prevent duplicate processing
 
   // Sort components by order
   const sortedComponents = survey.resultExperience?.components
@@ -17,6 +18,12 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
   useEffect(() => {
     // Process each component that needs AI generation
     const processComponents = async () => {
+      // Prevent duplicate processing (React Strict Mode calls effects twice)
+      if (hasProcessedRef.current) {
+        console.log('⏭️ Skipping duplicate processing');
+        return;
+      }
+      
       console.log('🚀 Starting processComponents with responseId:', responseId);
       
       // Check if there are any AI components that need processing
@@ -29,12 +36,15 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
         return;
       }
 
+      // Mark as processing to prevent duplicates
+      hasProcessedRef.current = true;
+
       // If we have a responseId, try to fetch cached data first
       if (responseId) {
         try {
           console.log('🔍 Checking cache for response:', responseId);
           const cacheResponse = await axios.get(`/api/ai-cache/${responseId}`);
-          console.log('📦 Cache response:', cacheResponse.data);
+          console.log('📦 Cache response:', cacheResponse.data.cached ? 'HIT' : 'MISS');
           if (cacheResponse.data.cached) {
             // Load cached data into component state
             const cachedData = cacheResponse.data.aiGeneratedContent;
@@ -69,10 +79,11 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
             
             // Set cached data and return early
             setComponentData(loadedData);
+            console.log('✅ Loaded from cache');
             return;
           }
         } catch (error) {
-          console.log('No cache found, generating new content:', error.message);
+          console.log('❌ No cache found, will generate new content');
         }
       }
 
@@ -89,11 +100,11 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
       }
     };
 
-    if (sortedComponents.length > 0 && questions && answers) {
+    if (sortedComponents.length > 0 && questions && answers && responseId && !hasProcessedRef.current) {
       processComponents();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [responseId]); // Only re-run if responseId changes
 
   const generateComponentData = async (component) => {
     const componentId = component.id;
@@ -117,6 +128,9 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
         });
         const imageUrl = avatarResponse.data.data?.[0]?.url;
         
+        // Log avatar rate limit info (only once)
+        console.log('🎨 Avatar generated | Rate limit:', avatarResponse.data.rateLimit);
+        
         // Call custom AI API to generate a creative name for the avatar
         const namePrompt = `Based on this avatar description: "${prompt}". Follow the instructions and generate a creative and catchy 2-3 word name for this character. Only return the name, nothing else. Examples: "Glamorous Tiger", "Wise Owl", "Cheerful Sunflower". Keep it short and memorable.`;
         const nameResponse = await axios.post('/api/openai/custom', { 
@@ -129,13 +143,12 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
         let avatarName = 'Your Avatar';
         try {
           const nameData = nameResponse.data;
-          console.log('Avatar name response:', nameData);
-          
           if (nameData && nameData.content) {
             avatarName = nameData.content.trim();
           } else if (typeof nameData === 'string') {
             avatarName = nameData.trim();
           }
+          console.log('✨ Avatar name generated:', avatarName);
         } catch (e) {
           console.error('Error parsing avatar name:', e);
         }
@@ -155,18 +168,14 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
         // Save to cache if we have a responseId
         if (responseId) {
           try {
-            console.log('💾 Attempting to cache avatar data for response:', responseId);
             const cacheResult = await axios.post(`/api/ai-cache/${responseId}`, {
               type: 'avatar',
               data: avatarData
             });
-            console.log('✅ Avatar cache saved:', cacheResult.data);
+            console.log('💾 Avatar cached successfully');
           } catch (cacheError) {
-            console.error('❌ Failed to cache avatar data:', cacheError);
-            console.error('Error details:', cacheError.response?.data);
+            console.error('❌ Failed to cache avatar:', cacheError.message);
           }
-        } else {
-          console.warn('⚠️ No responseId available for caching avatar');
         }
       } else if (component.type === 'ai-custom') {
         // Get custom AI instructions from component config
@@ -190,6 +199,8 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
           surveyId: survey._id || survey.id
         });
         
+        console.log('📝 Custom AI generated | Rate limit:', response.data.rateLimit);
+        
         const customData = {
           type: 'ai-custom',
           title: title,
@@ -205,20 +216,16 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
         // Save to cache if we have a responseId
         if (responseId) {
           try {
-            console.log('💾 Attempting to cache custom AI data for response:', responseId);
             const cacheResult = await axios.post(`/api/ai-cache/${responseId}`, {
               type: 'custom',
               componentId: componentId.toString(),
               title: title,
               data: response.data
             });
-            console.log('✅ Custom AI cache saved:', cacheResult.data);
+            console.log('💾 Custom AI cached successfully');
           } catch (cacheError) {
-            console.error('❌ Failed to cache custom data:', cacheError);
-            console.error('Error details:', cacheError.response?.data);
+            console.error('❌ Failed to cache custom AI:', cacheError.message);
           }
-        } else {
-          console.warn('⚠️ No responseId available for caching custom AI');
         }
       }
     } catch (error) {
@@ -282,17 +289,11 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
     // Extract the AI-generated content from the response
     let aiGeneratedContent = '';
     if (data?.data) {
-      try {
-        console.log('AI Custom data:', data.data);
-        
-        // New format: direct content property
-        if (data.data.content) {
-          aiGeneratedContent = data.data.content;
-        } else if (typeof data.data === 'string') {
-          aiGeneratedContent = data.data;
-        }
-      } catch (e) {
-        console.error('Error parsing AI custom content:', e);
+      // New format: direct content property
+      if (data.data.content) {
+        aiGeneratedContent = data.data.content;
+      } else if (typeof data.data === 'string') {
+        aiGeneratedContent = data.data;
       }
     }
 
