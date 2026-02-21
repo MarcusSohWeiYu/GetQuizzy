@@ -499,7 +499,7 @@ const SurveyPreview = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-4">
+    <div className="w-full max-w-2xl mx-auto space-y-3 scale-90">
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {Object.entries(surveyExamples).map(([key, survey]) => (
@@ -511,7 +511,7 @@ const SurveyPreview = () => {
               setAnswers({});
               setShowResult(false);
             }}
-            className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 whitespace-nowrap ${
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 whitespace-nowrap ${
               activeTab === key
                 ? `bg-gradient-to-r ${colorGradients[survey.color]} text-white shadow-lg scale-105`
                 : 'bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-gray-300 border border-gray-700'
@@ -522,81 +522,99 @@ const SurveyPreview = () => {
         ))}
       </div>
 
-      <div className={`bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl border ${borderColors[currentSurvey.color]} overflow-hidden`}>
-        {/* Header */}
-        <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 border-b border-gray-700">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-2">
-            {currentSurvey.title}
-          </h2>
+      {/* Survey Card - Matching PublicSurvey.js design */}
+      <div className="w-full bg-gray-900 rounded-lg shadow-md p-4 border border-gray-800">
+        <div className="space-y-4">
+          {/* Header */}
+          <div className="text-center">
+            <h1 className="text-lg md:text-xl font-bold mb-1 text-white">{currentSurvey.title}</h1>
+            <p className="text-gray-400 text-xs">Question {currentQuestion + 1} of {questions.length}</p>
+          </div>
           
           {/* Progress Bar */}
-          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mt-4">
-            <div 
-              className={`h-full bg-gradient-to-r ${colorGradients[currentSurvey.color]} transition-all duration-500 ease-out`}
-              style={{ width: `${progress}%` }}
-            ></div>
+          <div className="mb-4">
+            <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+              <div 
+                className={`h-2 bg-gradient-to-r ${colorGradients[currentSurvey.color]} rounded-full transition-all duration-500`}
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
           </div>
-        </div>
+          
+          {/* Question */}
+          <div className="text-center mb-4">
+            <h2 className="text-base md:text-lg font-semibold mb-4 text-white leading-relaxed">
+              {currentQ.question}
+            </h2>
+            
+            {/* Options */}
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              {currentQ.options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleAnswer(option.value)}
+                  className={`p-3 text-left rounded-lg border-2 transition-all duration-200 text-sm ${
+                    answers[currentQuestion] === option.value
+                      ? 'border-purple-500 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white shadow-lg shadow-purple-500/20'
+                      : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 hover:bg-gray-750 hover:text-white'
+                  }`}
+                >
+                  {option.text}
+                </button>
+              ))}
+            </div>
 
-      {/* Question Content */}
-      <div className="p-8 space-y-6">
-        <h3 className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
-          {currentQ.question}
-        </h3>
-
-        {/* Options */}
-        <div className="space-y-3">
-          {currentQ.options.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => handleAnswer(option.value)}
-              className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                answers[currentQuestion] === option.value
-                  ? 'border-purple-500 bg-purple-500/20 text-white'
-                  : 'border-gray-700 bg-gray-800/50 text-gray-300 hover:border-purple-400 hover:bg-purple-500/10'
-              }`}
-            >
-              {option.text}
-            </button>
-          ))}
-        </div>
-      </div>
-
-        {/* Navigation */}
-        <div className="p-6 bg-gray-800/50 border-t border-gray-700 flex items-center justify-between">
-          <button
-            onClick={handleBack}
-            disabled={currentQuestion === 0}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
-              currentQuestion === 0
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-700 text-white hover:bg-gray-600'
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-            Back
-          </button>
-
-          <span className="text-gray-400 font-medium">
-            Question {currentQuestion + 1} of {questions.length}
-          </span>
-
-          <button
-            onClick={handleNext}
-            disabled={!answers[currentQuestion]}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
-              !answers[currentQuestion]
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                : `bg-gradient-to-r ${colorGradients[currentSurvey.color]} text-white hover:scale-105 shadow-lg`
-            }`}
-          >
-            {isLastQuestion ? 'See Result' : 'Next'}
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-5">
+              <button
+                onClick={handleBack}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-full transition-all text-xs font-semibold min-w-[80px] ${
+                  currentQuestion > 0
+                    ? 'bg-gray-800 hover:bg-gray-700 text-white border-2 border-gray-700'
+                    : 'bg-gray-900 text-gray-600 cursor-not-allowed border-2 border-gray-800'
+                }`}
+                disabled={currentQuestion === 0}
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={2.5} 
+                  stroke="currentColor" 
+                  className="w-4 h-4"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Back
+              </button>
+              
+              <button
+                onClick={handleNext}
+                disabled={!answers[currentQuestion]}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-full transition-all text-xs font-semibold min-w-[80px] ${
+                  !answers[currentQuestion]
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : isLastQuestion
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg shadow-green-500/50'
+                    : `bg-gradient-to-r ${colorGradients[currentSurvey.color]} hover:opacity-90 text-white shadow-lg`
+                }`}
+              >
+                {isLastQuestion ? 'Submit' : 'Next'}
+                {!isLastQuestion && (
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={2.5} 
+                    stroke="currentColor" 
+                    className="w-4 h-4"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

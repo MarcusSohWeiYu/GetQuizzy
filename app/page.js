@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import DemoSection from "@/components/DemoSection";
 import Problem from "@/components/Problem";
 import FeaturesAccordion from "@/components/FeaturesAccordion";
 import Pricing from "@/components/Pricing";
@@ -33,6 +34,7 @@ export default function Home() {
         </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="space-y-20 sm:space-y-24 md:space-y-32">
+            <DemoSection />
             <Problem />
           </div>
         </div>
