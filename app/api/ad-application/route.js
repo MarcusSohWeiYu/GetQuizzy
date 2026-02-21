@@ -28,7 +28,7 @@ export async function POST(req) {
     }
 
     // Validate URL format
-    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
     if (!urlRegex.test(website)) {
       return NextResponse.json(
         { error: "Invalid website URL" },
