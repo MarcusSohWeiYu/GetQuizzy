@@ -8,12 +8,27 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
   const [isLoading, setIsLoading] = useState(false);
   const [componentData, setComponentData] = useState({});
   const [errors, setErrors] = useState({});
+  const [rateLimitInfo, setRateLimitInfo] = useState(null); // Store rate limit details
   const hasProcessedRef = useRef(false); // Prevent duplicate processing
 
   // Sort components by order
   const sortedComponents = survey.resultExperience?.components
     ? [...survey.resultExperience.components].sort((a, b) => (a.order || 0) - (b.order || 0))
     : [];
+
+  // Helper function to format retry time
+  const formatRetryTime = (seconds) => {
+    if (!seconds) return 'a few minutes';
+    const minutes = Math.ceil(seconds / 60);
+    if (minutes < 1) return 'less than a minute';
+    if (minutes === 1) return '1 minute';
+    if (minutes < 60) return `${minutes} minutes`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (hours === 1 && remainingMinutes === 0) return '1 hour';
+    if (remainingMinutes === 0) return `${hours} hours`;
+    return `${hours} hour${hours > 1 ? 's' : ''} and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`;
+  };
 
   useEffect(() => {
     // Process each component that needs AI generation
@@ -234,9 +249,20 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
       // Check if it's a rate limit error (429)
       if (error.response?.status === 429) {
         const errorData = error.response.data;
+        
+        // Store rate limit info for unified banner display
+        if (!rateLimitInfo) {
+          setRateLimitInfo({
+            message: errorData.error || 'AI generation limit reached',
+            retryAfter: errorData.retryAfter,
+            reset: errorData.limit?.reset
+          });
+        }
+        
+        // Mark this component as rate limited (but don't show individual error)
         setErrors(prev => ({
           ...prev,
-          [componentId]: errorData.error || 'Rate limit exceeded. Please try again later.'
+          [componentId]: 'RATE_LIMITED' // Special flag
         }));
       } else {
         setErrors(prev => ({
@@ -252,6 +278,11 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
     const componentId = component.id;
     const data = componentData[componentId];
     const error = errors[componentId];
+
+    // If rate limited, don't render anything (handled by banner)
+    if (error === 'RATE_LIMITED') {
+      return null;
+    }
 
     return (
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-purple-500/20">
@@ -285,6 +316,11 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
     const data = componentData[componentId];
     const error = errors[componentId];
     const title = component.config?.title || 'Your Personalized Insights';
+
+    // If rate limited, don't render anything (handled by banner)
+    if (error === 'RATE_LIMITED') {
+      return null;
+    }
 
     // Extract the AI-generated content from the response
     let aiGeneratedContent = '';
@@ -432,6 +468,48 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
         <p className="text-white/50 text-sm">Personalized just for you</p>
       </div>
 
+      {/* Unified Rate Limit Banner */}
+      {rateLimitInfo && (
+        <div className="relative overflow-hidden bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-2 border-purple-500/30 rounded-3xl p-8 backdrop-blur-sm shadow-2xl">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-purple-600/10 opacity-50"></div>
+          
+          <div className="relative z-10 text-center space-y-6">
+            {/* Icon */}
+            <div className="flex justify-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center border-2 border-purple-400/30 shadow-lg">
+                <span className="text-5xl">⏳</span>
+              </div>
+            </div>
+            
+            {/* Title */}
+            <div>
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mb-3">
+                AI Generation Limit Reached
+              </h3>
+              <p className="text-white/80 text-lg">
+                AI content generation limit exceeded. Please try again in {formatRetryTime(rateLimitInfo.retryAfter)}.
+              </p>
+            </div>
+            
+            {/* Info Box */}
+            <div className="max-w-2xl mx-auto bg-gray-900/50 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm">
+              <div className="flex items-start gap-3 text-left">
+                <span className="text-2xl mt-1 flex-shrink-0">📌</span>
+                <div className="space-y-2">
+                  <p className="text-white/90 text-base leading-relaxed">
+                    <span className="font-semibold text-purple-300">Good news!</span> Your survey responses are still saved.
+                  </p>
+                  <p className="text-white/70 text-sm leading-relaxed">
+                    AI-generated content has a usage limit to manage costs, but you can continue submitting surveys anytime. AI features will be available again soon.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Render Components in Order */}
       {sortedComponents.map((component) => (
         <div key={component.id}>
@@ -446,7 +524,7 @@ const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }
             onClick={onRetakeSurvey}
             className="btn btn-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
-            🔄 Take Survey Again
+            Take Survey Again
           </button>
         </div>
       )}
