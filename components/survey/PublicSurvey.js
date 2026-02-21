@@ -226,6 +226,8 @@ export default function PublicSurvey({ survey, questions }) {
     setCurrentQuestion(0);
     setAnswers({});
     setShowResults(false);
+    setResponseId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -560,6 +562,7 @@ export default function PublicSurvey({ survey, questions }) {
               questions={questions} 
               answers={answers}
               responseId={responseId}
+              onRetakeSurvey={resetSurvey}
             />
           )}
         </div>

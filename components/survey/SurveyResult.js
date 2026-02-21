@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ImageGenerationPrompt } from "@/libs/helpers/prompt";
 
-const SurveyResult = ({ survey, questions, answers, responseId }) => {
+const SurveyResult = ({ survey, questions, answers, responseId, onRetakeSurvey }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [componentData, setComponentData] = useState({});
   const [errors, setErrors] = useState({});
@@ -384,6 +384,16 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
         <p className="text-xl md:text-2xl text-gray-300 mb-8">
           Your response has been recorded successfully.
         </p>
+        
+        {/* Retake Survey Button */}
+        {onRetakeSurvey && (
+          <button
+            onClick={onRetakeSurvey}
+            className="btn btn-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            🔄 Take Survey Again
+          </button>
+        )}
       </div>
     );
   }
@@ -428,6 +438,18 @@ const SurveyResult = ({ survey, questions, answers, responseId }) => {
           {renderComponent(component)}
         </div>
       ))}
+
+      {/* Retake Survey Button */}
+      {onRetakeSurvey && (
+        <div className="mt-12 text-center">
+          <button
+            onClick={onRetakeSurvey}
+            className="btn btn-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            🔄 Take Survey Again
+          </button>
+        </div>
+      )}
     </div>
   );
 };
