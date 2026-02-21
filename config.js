@@ -82,6 +82,7 @@ const config = {
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
     fromAdmin: `Marcus at GetQuizzy <marc@resend.getquizzy.online>`,
     // Email shown to customer if need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
+    // Also used as admin email for ad applications (can be overridden with ADMIN_EMAIL env var)
     supportEmail: "mswy07@gmail.com",
   },
   colors: {

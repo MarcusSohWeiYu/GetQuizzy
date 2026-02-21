@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { GeistSans, GeistMono } from 'geist/font';
 import axios from "axios";
 import SurveyResult from "./SurveyResult";
-import AdvertiseModal from "@/components/ad/AdvertiseModal";
+import EarlyAccessModal from "@/components/ad/EarlyAccessModal";
+import DemoAdModal from "@/components/ad/DemoAdModal";
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -78,6 +79,7 @@ export default function PublicSurvey({ survey, questions }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adRotationIndex, setAdRotationIndex] = useState(0);
   const [isAdvertiseModalOpen, setIsAdvertiseModalOpen] = useState(false);
+  const [isDemoAdModalOpen, setIsDemoAdModalOpen] = useState(false);
   const [responseId, setResponseId] = useState(null);
   
   const leftAds = adSpaces.filter(ad => ad.position === "left");
@@ -322,11 +324,15 @@ export default function PublicSurvey({ survey, questions }) {
                 </div>
               </a>
             ) : (
-              // Regular Ad
+              // Regular Ad - Demo (Mobile Top)
               <a
                 key={`mobile-${ad.id}-${index}`}
                 href="#"
-                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsDemoAdModalOpen(true);
+                }}
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2 cursor-pointer`}
               >
                 <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                   Ad
@@ -386,11 +392,15 @@ export default function PublicSurvey({ survey, questions }) {
                   </div>
                 </a>
               ) : (
-                // Regular Ad
+                // Regular Ad - Demo (Left Sidebar)
                 <a 
                   key={`${ad.id}-${index}`}
                   href="#"
-                  className={`block bg-gradient-to-br ${ad.bgColor} rounded-lg p-2 shadow-md hover:shadow-purple-500/20 hover:scale-[1.01] transition-all duration-300 text-white border border-white/10 relative group h-[calc((100vh-8rem)/5-0.5rem)]`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsDemoAdModalOpen(true);
+                  }}
+                  className={`block bg-gradient-to-br ${ad.bgColor} rounded-lg p-2 shadow-md hover:shadow-purple-500/20 hover:scale-[1.01] transition-all duration-300 text-white border border-white/10 relative group h-[calc((100vh-8rem)/5-0.5rem)] cursor-pointer`}
                 >
                   <div className="absolute top-1 right-1 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                     Ad
@@ -606,11 +616,15 @@ export default function PublicSurvey({ survey, questions }) {
                   </div>
                 </a>
               ) : (
-                // Regular Ad
+                // Regular Ad - Demo (Right Sidebar)
                 <a 
                   key={`${ad.id}-${index}`}
                   href="#"
-                  className={`block bg-gradient-to-br ${ad.bgColor} rounded-lg p-2 shadow-md hover:shadow-purple-500/20 hover:scale-[1.01] transition-all duration-300 text-white border border-white/10 relative group h-[calc((100vh-8rem)/5-0.5rem)]`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsDemoAdModalOpen(true);
+                  }}
+                  className={`block bg-gradient-to-br ${ad.bgColor} rounded-lg p-2 shadow-md hover:shadow-purple-500/20 hover:scale-[1.01] transition-all duration-300 text-white border border-white/10 relative group h-[calc((100vh-8rem)/5-0.5rem)] cursor-pointer`}
                 >
                   <div className="absolute top-1 right-1 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                     Ad
@@ -676,11 +690,15 @@ export default function PublicSurvey({ survey, questions }) {
                 </div>
               </a>
             ) : (
-              // Regular Ad
+              // Regular Ad - Demo (Mobile Bottom)
               <a
                 key={`mobile-bottom-${ad.id}-${index}`}
                 href="#"
-                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsDemoAdModalOpen(true);
+                }}
+                className={`flex items-center gap-2 bg-gradient-to-r ${ad.bgColor} rounded-lg px-3 py-1.5 shadow-md hover:shadow-lg transition-all duration-300 text-white border border-white/10 relative group min-w-[140px] shrink-0 m-2 cursor-pointer`}
               >
                 <div className="absolute top-0.5 right-0.5 text-[7px] text-white/40 bg-black/20 px-1 py-0.5 rounded">
                   Ad
@@ -699,10 +717,17 @@ export default function PublicSurvey({ survey, questions }) {
         </div>
       </div>
 
-      {/* Advertise Modal */}
-      <AdvertiseModal 
+      {/* Early Access Modal */}
+      <EarlyAccessModal 
         isOpen={isAdvertiseModalOpen} 
         onClose={() => setIsAdvertiseModalOpen(false)} 
+      />
+
+      {/* Demo Ad Modal */}
+      <DemoAdModal 
+        isOpen={isDemoAdModalOpen} 
+        onClose={() => setIsDemoAdModalOpen(false)}
+        onApply={() => setIsAdvertiseModalOpen(true)}
       />
     </div>
   );
